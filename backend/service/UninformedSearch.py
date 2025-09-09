@@ -1,7 +1,16 @@
 from collections import deque
 from .Node import Node
+import logging
 
 class UninformedSearch(object):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
     #--------------------------------------------------------------------------
     # SUCCESSORS FOR GRAPH
     #--------------------------------------------------------------------------
@@ -78,8 +87,10 @@ class UninformedSearch(object):
     # BREADTH-FIRST SEARCH
     #--------------------------------------------------------------------------
     def breadth_first_search(self,start,goal,nodes,graph):   # graph
+        self.logger.info(f"Starting breadth-first search from {start} to {goal}")
         # Finish if start equals goal
         if start == goal:
+            self.logger.info(f"Start equals goal: {start}")
             return [start]
         
         # List for search tree - QUEUE
@@ -91,31 +102,41 @@ class UninformedSearch(object):
     
         # Mark start as visited
         visited = {start: root}           # graph
+        self.logger.debug(f"Initial queue size: 1, visited nodes: {len(visited)}")
         
         while queue:
             # Remove first from QUEUE
             current = queue.popleft()
+            self.logger.debug(f"Exploring node: {current.state}, depth: {current.depth}")
     
             # Generate successors from graph
             idx = nodes.index(current.state)    # graph
             children = self.successors_graph(idx, graph, 1) # graph
+            self.logger.debug(f"Generated {len(children)} children for node {current.state}")
     
             for new in children:
                 if new not in visited:   # graph
                     child = Node(current,new,current.depth + 1,None,None)  # graph
                     queue.append(child)
                     visited[new] = child   # graph
+                    self.logger.debug(f"Added new node {new} to queue, depth: {child.depth}")
                     
                     # Check if found the goal
                     if new == goal:        # graph
-                        return self.show_path(child)
+                        path = self.show_path(child)
+                        self.logger.info(f"Goal found! Path: {path}, steps: {len(path)-1}")
+                        return path
+        
+        self.logger.warning("No path found from start to goal")
         return None
     #--------------------------------------------------------------------------
     # DEPTH-FIRST SEARCH
     #--------------------------------------------------------------------------
     def depth_first_search(self, start, goal, nodes, graph):
+        self.logger.info(f"Starting depth-first search from {start} to {goal}")
         # Finish if start equals goal
         if start == goal:
+            self.logger.info(f"Start equals goal: {start}")
             return [start]
         
         # List for search tree - STACK
@@ -127,31 +148,41 @@ class UninformedSearch(object):
     
         # Mark start as visited
         visited = {start: root}           # graph
+        self.logger.debug(f"Initial stack size: 1, visited nodes: {len(visited)}")
         
         while stack:
             # Remove last from STACK
             current = stack.pop()
+            self.logger.debug(f"Exploring node: {current.state}, depth: {current.depth}")
     
             # Generate successors from graph
             idx = nodes.index(current.state)    # graph
             children = self.successors_graph(idx,graph,-1) # graph
+            self.logger.debug(f"Generated {len(children)} children for node {current.state}")
     
             for new in children:
                 if new not in visited:   # graph
                     child = Node(current,new,current.depth + 1,None,None)  # graph
                     stack.append(child)
                     visited[new] = child   # graph
+                    self.logger.debug(f"Added new node {new} to stack, depth: {child.depth}")
                     
                     # Check if found the goal
                     if new == goal:        # graph
-                        return self.show_path(child)
+                        path = self.show_path(child)
+                        self.logger.info(f"Goal found! Path: {path}, steps: {len(path)-1}")
+                        return path
+        
+        self.logger.warning("No path found from start to goal")
         return None
     #--------------------------------------------------------------------------
     # DEPTH-LIMITED SEARCH
     #--------------------------------------------------------------------------
     def depth_limited_search(self,start,goal,nodes,graph,limit):
+        self.logger.info(f"Starting depth-limited search from {start} to {goal}, limit: {limit}")
         # Finish if start equals goal
         if start == goal:
+            self.logger.info(f"Start equals goal: {start}")
             return [start]
         
         # List for search tree - STACK
@@ -163,33 +194,46 @@ class UninformedSearch(object):
     
         # Mark start as visited
         visited = {start: root}           # graph
+        self.logger.debug(f"Initial stack size: 1, visited nodes: {len(visited)}, depth limit: {limit}")
         
         while stack:
             # Remove last from STACK
             current = stack.pop()
             
             if current.depth<limit:
+                self.logger.debug(f"Exploring node: {current.state}, depth: {current.depth} (within limit {limit})")
                 # Generate successors from graph
                 idx = nodes.index(current.state)    # graph
                 children = self.successors_graph(idx,graph,-1) # graph
+                self.logger.debug(f"Generated {len(children)} children for node {current.state}")
         
                 for new in children:
                     if new not in visited:   # graph
                         child = Node(current,new,current.depth + 1,None,None)  # graph
                         stack.append(child)
                         visited[new] = child   # graph
+                        self.logger.debug(f"Added new node {new} to stack, depth: {child.depth}")
                         
                         # Check if found the goal
                         if new == goal:        # graph
-                            return self.show_path(child)
+                            path = self.show_path(child)
+                            self.logger.info(f"Goal found! Path: {path}, steps: {len(path)-1}")
+                            return path
+            else:
+                self.logger.debug(f"Node {current.state} at depth {current.depth} exceeds limit {limit}")
+        
+        self.logger.warning(f"No path found within depth limit {limit}")
         return None
     #--------------------------------------------------------------------------
     # ITERATIVE DEEPENING SEARCH
     #--------------------------------------------------------------------------
     def iterative_deepening_search(self,start,goal,nodes,graph,max_limit):
+        self.logger.info(f"Starting iterative deepening search from {start} to {goal}, max limit: {max_limit}")
         for limit in range(1,max_limit):
+            self.logger.info(f"Trying depth limit: {limit}")
             # Finish if start equals goal
             if start == goal:
+                self.logger.info(f"Start equals goal: {start}")
                 return [start]
             
             # List for search tree - STACK
@@ -219,13 +263,19 @@ class UninformedSearch(object):
                             
                             # Check if found the goal
                             if new == goal:        # graph
-                                return self.show_path(child)
+                                path = self.show_path(child)
+                                self.logger.info(f"Goal found at depth limit {limit}! Path: {path}, steps: {len(path)-1}")
+                                return path
+        
+        self.logger.warning(f"No path found within max depth limit {max_limit}")
         return None
     #--------------------------------------------------------------------------
     # BIDIRECTIONAL SEARCH
     #--------------------------------------------------------------------------
     def bidirectional_search(self, start, goal, nodes, graph):
+        self.logger.info(f"Starting bidirectional search from {start} to {goal}")
         if start == goal:
+            self.logger.info(f"Start equals goal: {start}")
             return [start]
 
         # List for search tree from origin - QUEUE
@@ -245,6 +295,7 @@ class UninformedSearch(object):
         visited2 = {goal:    queue2[0]}
         
         level = 0
+        self.logger.debug("Initial setup: forward queue size: 1, backward queue size: 1")
     
         while queue1 and queue2:
             
@@ -266,7 +317,9 @@ class UninformedSearch(object):
 
                         # Found meeting point with other BREADTH-FIRST
                         if new in visited2:
-                            return self.show_path_bidirectional(new, visited1, visited2)
+                            path = self.show_path_bidirectional(new, visited1, visited2)
+                            self.logger.info(f"Meeting point found at {new}! Path: {path}, steps: {len(path)-1}")
+                            return path
 
                         # Insert in QUEUE
                         queue1.append(child)
@@ -289,8 +342,12 @@ class UninformedSearch(object):
 
                         # Found meeting point with other BREADTH-FIRST
                         if new in visited1:
-                            return self.show_path_bidirectional(new, visited1, visited2)
+                            path = self.show_path_bidirectional(new, visited1, visited2)
+                            self.logger.info(f"Meeting point found at {new}! Path: {path}, steps: {len(path)-1}")
+                            return path
 
                         # Insert in QUEUE
                         queue2.append(child)
+        
+        self.logger.warning("No path found in bidirectional search")
         return None
