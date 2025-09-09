@@ -1,0 +1,12 @@
+Passo 1: Instalar o Node.js
+Passo 2: Instalar o Python 3
+Passo 3: Abrir um terminal na raiz do projeto
+Passo 4: Acessar a pasta '/backend' do projeto com o comando: `cd backend`
+Passo 5: Rodar o bash script `run.sh`com o comando: `bash run.sh`
+Passo 6: Abrir outro terminal na raiz do projeto
+Passo 7: Acessar a pasta '/frontend' do projeto com o comando: `cd frontend`
+Passo 8: Rodar o bash script `run.sh`com o comando: `bash run.sh`
+
+Passo Opcional: 
+- Acessar o navegador e abrir a URL: `http://127.0.0.1:5000`
+- Com a mensagem 'Health Check: The server is running!' sendo exibida, significa que a aplicação está rodando corretamente.
