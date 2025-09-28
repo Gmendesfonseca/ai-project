@@ -1,9 +1,16 @@
-import rsc from '@vitejs/plugin-rsc'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import rsc from '@vitejs/plugin-rsc';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import path from 'node:path';
 // import inspect from "vite-plugin-inspect";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.', 'src'),
+      '@core': path.resolve(__dirname, '.', 'src/@core'),
+    },
+  },
   plugins: [
     rsc({
       // `entries` option is only a shorthand for specifying each `rollupOptions.input` below
@@ -70,4 +77,4 @@ export default defineConfig({
       },
     },
   },
-})
+});

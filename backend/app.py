@@ -21,7 +21,7 @@ def get_json_data() -> Dict[str, Any]:
         abort(400, description="Invalid or missing JSON data.")
     return data
 
-@app.route('/search/breadth_first', methods=['POST'])
+@app.route('/search/uninformed/breadth_first', methods=['POST'])
 def breadth_first() -> Any:
     data = get_json_data()
     try:
@@ -39,7 +39,7 @@ def breadth_first() -> Any:
         logging.error(f"Error in breadth first search: {e}")
         abort(500, description=str(e))
         
-@app.route('/search/depth_first', methods=['POST'])
+@app.route('/search/uninformed/depth_first', methods=['POST'])
 def depth_first() -> Any:
     data = get_json_data()
     try:
@@ -57,7 +57,7 @@ def depth_first() -> Any:
         logging.error(f"Error in depth first search: {e}")
         abort(500, description=str(e))
 
-@app.route('/search/depth_limited', methods=['POST'])
+@app.route('/search/uninformed/depth_limited', methods=['POST'])
 def depth_limited() -> Any:
     data = get_json_data()
     try:
@@ -76,7 +76,7 @@ def depth_limited() -> Any:
         logging.error(f"Error in depth limited search: {e}")
         abort(500, description=str(e))
         
-@app.route('/search/iterative_deepening', methods=['POST'])
+@app.route('/search/uninformed/iterative_deepening', methods=['POST'])
 def iterative_deepening() -> Any:
     data = get_json_data()
     try:
@@ -95,7 +95,7 @@ def iterative_deepening() -> Any:
         logging.error(f"Error in iterative deepening search: {e}")
         abort(500, description=str(e))
 
-@app.route('/search/bidirectional', methods=['POST'])
+@app.route('/search/uninformed/bidirectional', methods=['POST'])
 def bidirectional() -> Any:
     data = get_json_data()
     try:
