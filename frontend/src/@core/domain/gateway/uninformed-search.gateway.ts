@@ -18,9 +18,9 @@ type MethodResponse = { path: string[] };
 export type BaseUniformedOutput = Promise<MethodResponse | null>;
 
 export interface UninformedSearchGateway {
-  breadthFirst(payload: BaseUninformedInput): BaseUniformedOutput;
-  depthFirst(payload: BaseUninformedInput): BaseUniformedOutput;
   depthLimited(payload: DepthLimited): BaseUniformedOutput;
-  iterativeDeepening(payload: IterativeDeepening): BaseUniformedOutput;
+  depthFirst(payload: BaseUninformedInput): BaseUniformedOutput;
+  breadthFirst(payload: BaseUninformedInput): BaseUniformedOutput;
   bidirectional(payload: BaseUninformedInput): BaseUniformedOutput;
+  iterativeDeepening(payload: IterativeDeepening): BaseUniformedOutput;
 }

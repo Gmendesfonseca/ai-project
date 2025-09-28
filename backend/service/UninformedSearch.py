@@ -15,52 +15,30 @@ class UninformedSearch(object):
     # SUCCESSORS FOR GRAPH
     #--------------------------------------------------------------------------
     def successors_graph(self,idx,graph,order):
+        """
+        Returns the successors of a given node in the graph.
+
+        :param idx: Index of the node in the nodes list.
+        :param graph: Adjacency list representing the graph.
+        :param order: Order of traversal (1 for normal, -1 for reverse).
         
+        :return: List of successor nodes.
+        """
         successors = []
         for suc in graph[idx][::order]:
             successors.append(suc)
-        return successors
-    #--------------------------------------------------------------------------
-    # SUCCESSORS FOR GRID
-    #--------------------------------------------------------------------------
-    # SUCCESSORS FOR GRID (ADJACENCY LIST)
-    def successors_grid(self,state,nx,ny,grid):
-        successors = []
-        x, y = state[0], state[1]
-        # RIGHT
-        if y+1<ny:
-            if grid[x][y+1]==0:
-                suc = []
-                suc.append(x)
-                suc.append(y+1)
-                successors.append(suc)
-        # LEFT
-        if y-1>=0:
-            if grid[x][y-1]==0:
-                suc = []
-                suc.append(x)
-                suc.append(y-1)
-                successors.append(suc)
-        # DOWN
-        if x+1<nx:
-            if grid[x+1][y]==0:
-                suc = []
-                suc.append(x+1)
-                suc.append(y)
-                successors.append(suc)
-        # UP
-        if x-1>=0:
-            if grid[x-1][y]==0:
-                suc = []
-                suc.append(x-1)
-                suc.append(y)
-                successors.append(suc)
-        
         return successors
     #--------------------------------------------------------------------------    
     # SHOW PATH FOUND IN SEARCH TREE
     #--------------------------------------------------------------------------    
     def show_path(self,node):
+        """
+        Reconstructs the path from the start node to the given node.
+        
+        :param node: The end node of the path.
+        
+        :return: A list representing the path from start to the given node.
+        """
         path = []
         while node is not None:
             path.append(node.state)
@@ -71,6 +49,16 @@ class UninformedSearch(object):
     # REPEATED NODE CONTROL
     #--------------------------------------------------------------------------
     def show_path_bidirectional(self,meeting_point,visited1, visited2):
+        """
+        Reconstructs the path from start to goal given a meeting point and visited nodes from both searches.
+        
+        
+        :param meeting_point: The node where both searches met.
+        :param visited1: Visited nodes from the start side.
+        :param visited2: Visited nodes from the goal side.
+        
+        :return: A list representing the path from start to goal.
+        """
         # node from the start side
         meeting1 = visited1[meeting_point]  
         # node from the goal side
@@ -87,6 +75,16 @@ class UninformedSearch(object):
     # BREADTH-FIRST SEARCH
     #--------------------------------------------------------------------------
     def breadth_first_search(self,start,goal,nodes,graph):   # graph
+        """
+        Performs a breadth-first search on a graph.
+        
+        :param start: The starting node.
+        :param goal: The goal node.
+        :param nodes: List of all nodes in the graph.
+        :param graph: Adjacency list representing the graph.
+        
+        :return: A list representing the path from start to goal, or None if no path is found.
+        """
         self.logger.info(f"Starting breadth-first search from {start} to {goal}")
         # Finish if start equals goal
         if start == goal:
@@ -133,6 +131,16 @@ class UninformedSearch(object):
     # DEPTH-FIRST SEARCH
     #--------------------------------------------------------------------------
     def depth_first_search(self, start, goal, nodes, graph):
+        """
+        Performs a depth-first search on a graph.
+        
+        :param start: The starting node.
+        :param goal: The goal node.
+        :param nodes: List of all nodes in the graph.
+        :param graph: Adjacency list representing the graph.
+        
+        :return: A list representing the path from start to goal, or None if no path is found.
+        """
         self.logger.info(f"Starting depth-first search from {start} to {goal}")
         # Finish if start equals goal
         if start == goal:
@@ -179,6 +187,17 @@ class UninformedSearch(object):
     # DEPTH-LIMITED SEARCH
     #--------------------------------------------------------------------------
     def depth_limited_search(self,start,goal,nodes,graph,limit):
+        """
+        Performs a depth-limited search on a graph.
+
+        :param start: The starting node.
+        :param goal: The goal node.
+        :param nodes: List of all nodes in the graph.
+        :param graph: Adjacency list representing the graph.
+        :param limit: The depth limit for the search.
+
+        :return: A list representing the path from start to goal, or None if no path is found.
+        """
         self.logger.info(f"Starting depth-limited search from {start} to {goal}, limit: {limit}")
         # Finish if start equals goal
         if start == goal:
@@ -228,6 +247,17 @@ class UninformedSearch(object):
     # ITERATIVE DEEPENING SEARCH
     #--------------------------------------------------------------------------
     def iterative_deepening_search(self,start,goal,nodes,graph,max_limit):
+        """
+        Performs an iterative deepening search on a graph.
+        
+        :param start: The starting node.
+        :param goal: The goal node.
+        :param nodes: List of all nodes in the graph.
+        :param graph: Adjacency list representing the graph.
+        :param max_limit: The maximum depth limit for the search.
+
+        :return: A list representing the path from start to goal, or None if no path is found.
+        """
         self.logger.info(f"Starting iterative deepening search from {start} to {goal}, max limit: {max_limit}")
         for limit in range(1,max_limit):
             self.logger.info(f"Trying depth limit: {limit}")
@@ -273,6 +303,16 @@ class UninformedSearch(object):
     # BIDIRECTIONAL SEARCH
     #--------------------------------------------------------------------------
     def bidirectional_search(self, start, goal, nodes, graph):
+        """
+        Performs a bidirectional search on a graph.
+        
+        :param start: The starting node.
+        :param goal: The goal node.
+        :param nodes: List of all nodes in the graph.
+        :param graph: Adjacency list representing the graph.
+
+        :return: A list representing the path from start to goal, or None if no path is found.
+        """
         self.logger.info(f"Starting bidirectional search from {start} to {goal}")
         if start == goal:
             self.logger.info(f"Start equals goal: {start}")
