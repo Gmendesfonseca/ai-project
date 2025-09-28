@@ -13,7 +13,9 @@ export interface IterativeDeepening extends BaseUninformedInput {
   max_limit: number;
 }
 
-export type BaseUniformedOutput = Promise<string[] | null>;
+type MethodResponse = { path: string[] };
+
+export type BaseUniformedOutput = Promise<MethodResponse | null>;
 
 export interface UninformedSearchGateway {
   breadthFirst(payload: BaseUninformedInput): BaseUniformedOutput;

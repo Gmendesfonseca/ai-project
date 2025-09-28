@@ -14,7 +14,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
     this.httpClient = httpClient;
   }
 
-  async breadthFirst(payload: BaseUninformedInput): Promise<string[] | null> {
+  async breadthFirst(payload: BaseUninformedInput): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
       url: '/search/uninformed/breadth-first',
@@ -22,7 +22,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
     return response.data;
   }
 
-  async depthFirst(payload: BaseUninformedInput): Promise<string[] | null> {
+  async depthFirst(payload: BaseUninformedInput): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
       url: '/search/uninformed/depth-first',
@@ -30,7 +30,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
     return response.data;
   }
 
-  async depthLimited(payload: DepthLimited): Promise<string[] | null> {
+  async depthLimited(payload: DepthLimited): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
       url: '/search/uninformed/depth-limited',
@@ -38,9 +38,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
     return response.data;
   }
 
-  async iterativeDeepening(
-    payload: IterativeDeepening,
-  ): Promise<string[] | null> {
+  async iterativeDeepening(payload: IterativeDeepening): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
       url: '/search/uninformed/iterative-deepening',
@@ -48,7 +46,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
     return response.data;
   }
 
-  async bidirectional(payload: BaseUninformedInput): Promise<string[] | null> {
+  async bidirectional(payload: BaseUninformedInput): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
       url: '/search/uninformed/bidirectional',
