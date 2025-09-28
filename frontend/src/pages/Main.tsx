@@ -98,16 +98,16 @@ export const MainPage = () => {
       <select
         onChange={(e) => setType(e.target.value as UninformedSearchTypes)}
       >
-        <option value={UninformedSearchTypes.BREADTH}>Breadth First</option>
-        <option value={UninformedSearchTypes.DEPTH}>Depth First</option>
+        <option value={UninformedSearchTypes.BREADTH}>Amplitude</option>
+        <option value={UninformedSearchTypes.DEPTH}>Profundidade</option>
         <option value={UninformedSearchTypes.DEPTH_LIMITED}>
-          Depth Limited
+          Profundidade Limitada
         </option>
         <option value={UninformedSearchTypes.ITERATIVE}>
-          Iterative Deepening
+          Profundidade Iterativa
         </option>
         <option value={UninformedSearchTypes.BIDIRECTIONAL}>
-          Bidirectional
+          Bidirecional
         </option>
       </select>
       <div>
