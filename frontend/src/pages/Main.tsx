@@ -8,8 +8,8 @@ const UninformedSearchTypes = {
   BREADTH: 'BREADTH',
   DEPTH: 'DEPTH',
   DEPTH_LIMITED: 'DEPTH_LIMITED',
-  Iterative: 'Iterative',
-  bidirectional: 'bidirectional',
+  ITERATIVE: 'ITERATIVE',
+  BIDIRECTIONAL: 'BIDIRECTIONAL',
 };
 type UninformedSearchTypes =
   (typeof UninformedSearchTypes)[keyof typeof UninformedSearchTypes];
@@ -29,7 +29,7 @@ export const MainPage = () => {
   const httpClient = new AxiosHttpAdapter();
   const gateway = new UninformedSearchHttpGateway(httpClient);
 
-  function handleBreadthFirst() {
+  async function handleBreadthFirst() {
     return gateway.breadthFirst({
       goal,
       graph,
@@ -38,7 +38,7 @@ export const MainPage = () => {
     });
   }
 
-  function handleDepthFirst() {
+  async function handleDepthFirst() {
     return gateway.depthFirst({
       goal,
       graph,
@@ -47,7 +47,7 @@ export const MainPage = () => {
     });
   }
 
-  function handleDepthLimited() {
+  async function handleDepthLimited() {
     return gateway.depthLimited({
       goal,
       graph,
@@ -57,7 +57,7 @@ export const MainPage = () => {
     });
   }
 
-  function handleIterativeDeepening() {
+  async function handleIterativeDeepening() {
     return gateway.iterativeDeepening({
       goal,
       graph,
@@ -67,7 +67,7 @@ export const MainPage = () => {
     });
   }
 
-  function handleBidirectional() {
+  async function handleBidirectional() {
     return gateway.bidirectional({
       goal,
       graph,
@@ -81,11 +81,11 @@ export const MainPage = () => {
       [UninformedSearchTypes.BREADTH]: handleBreadthFirst,
       [UninformedSearchTypes.DEPTH]: handleDepthFirst,
       [UninformedSearchTypes.DEPTH_LIMITED]: handleDepthLimited,
-      [UninformedSearchTypes.Iterative]: handleIterativeDeepening,
-      [UninformedSearchTypes.bidirectional]: handleBidirectional,
+      [UninformedSearchTypes.ITERATIVE]: handleIterativeDeepening,
+      [UninformedSearchTypes.BIDIRECTIONAL]: handleBidirectional,
     };
     const response = await options[type]();
-    setResponse(response);
+    setResponse(response?.path || null);
   }
 
   return (
@@ -103,10 +103,10 @@ export const MainPage = () => {
         <option value={UninformedSearchTypes.DEPTH_LIMITED}>
           Depth Limited
         </option>
-        <option value={UninformedSearchTypes.Iterative}>
+        <option value={UninformedSearchTypes.ITERATIVE}>
           Iterative Deepening
         </option>
-        <option value={UninformedSearchTypes.bidirectional}>
+        <option value={UninformedSearchTypes.BIDIRECTIONAL}>
           Bidirectional
         </option>
       </select>
