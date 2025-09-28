@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, type ReactNode } from 'react';
 import type { IHttpClient } from '../../domain/ports/http-client.port';
 

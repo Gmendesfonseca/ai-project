@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useDependencies } from '../@core/infra/di/dependency-context';
 import { UninformedSearchHttpGateway } from '../@core/infra/gateways/http/uninformed-search.gateway';
+import { AxiosHttpAdapter } from '../@core/infra/http/axios.adapter';
 
 const UninformedSearchTypes = {
   BREADTH: 'BREADTH',
@@ -26,7 +26,7 @@ export const MainPage = () => {
   const [limit, setLimit] = useState(0);
   const [maxLimit, setMaxLimit] = useState(0);
 
-  const { httpClient } = useDependencies();
+  const httpClient = new AxiosHttpAdapter();
   const gateway = new UninformedSearchHttpGateway(httpClient);
 
   function handleBreadthFirst() {
