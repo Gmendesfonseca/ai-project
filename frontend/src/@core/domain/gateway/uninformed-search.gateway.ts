@@ -1,8 +1,8 @@
 export interface BaseUninformedInput {
   start: string;
   goal: string;
-  nodes: Record<string, string[]>;
-  graph: any;
+  nodes: string[];
+  graph: string[][];
 }
 
 export interface DepthLimited extends BaseUninformedInput {

@@ -17,7 +17,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
   async breadthFirst(payload: BaseUninformedInput): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
-      url: '/search/uninformed/breadth-first',
+      url: '/search/uninformed/breadth_first',
     });
     return response.data;
   }
@@ -25,7 +25,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
   async depthFirst(payload: BaseUninformedInput): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
-      url: '/search/uninformed/depth-first',
+      url: '/search/uninformed/depth_first',
     });
     return response.data;
   }
@@ -33,7 +33,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
   async depthLimited(payload: DepthLimited): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
-      url: '/search/uninformed/depth-limited',
+      url: '/search/uninformed/depth_limited',
     });
     return response.data;
   }
@@ -41,7 +41,7 @@ export class UninformedSearchHttpGateway implements UninformedSearchGateway {
   async iterativeDeepening(payload: IterativeDeepening): BaseUniformedOutput {
     const response = await this.httpClient.post<BaseUniformedOutput>({
       payload,
-      url: '/search/uninformed/iterative-deepening',
+      url: '/search/uninformed/iterative_deepening',
     });
     return response.data;
   }
