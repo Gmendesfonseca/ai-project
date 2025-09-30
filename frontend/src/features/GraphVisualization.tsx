@@ -5,7 +5,7 @@ const options = {
     hierarchical: false,
   },
   physics: {
-    enabled: true,
+    enabled: false,
     stabilization: { iterations: 150 },
   },
   nodes: {
@@ -38,18 +38,15 @@ const options = {
 
 export function GraphVisualization({
   nodes,
-  graph,
+  edges,
   path,
 }: {
   nodes: string[];
-  graph: string[][];
+  edges: string[][];
   path?: string[];
 }) {
-  if (!nodes || !graph) return null;
+  if (!nodes || !edges) return null;
 
-  console.log({ graph });
-
-  // Helper function to check if an edge is in the path
   const isEdgeInPath = (from: string, to: string): boolean => {
     if (!path || path.length < 2) return false;
 
@@ -60,27 +57,6 @@ export function GraphVisualization({
     }
     return false;
   };
-
-  graph.flatMap((connections, index) =>
-    connections
-      .filter((conn) => conn !== nodes[index]) // Filter out self-pointing edges
-      .map((conn, connIndex) => {
-        console.log('Edge from', nodes[index], 'to', conn);
-        return {
-          id: `edge-${nodes[index]}-${conn}-${connIndex}`,
-          from: nodes[index],
-          to: conn,
-          color: isEdgeInPath(nodes[index], conn) ? '#4CAF50' : '#666666',
-          width: isEdgeInPath(nodes[index], conn) ? 4 : 2,
-          arrows: {
-            to: {
-              enabled: true,
-              scaleFactor: isEdgeInPath(nodes[index], conn) ? 1.2 : 1,
-            },
-          },
-        };
-      })
-  );
 
   const events = {
     select: ({ nodes, edges }: { nodes: string[]; edges: string[] }) => {
@@ -106,7 +82,7 @@ export function GraphVisualization({
       borderWidth: path?.includes(node) ? 3 : 2,
       borderColor: path?.includes(node) ? '#2E7D32' : '#1976D2',
     })),
-    edges: graph.map(([from, to], index) => ({
+    edges: edges.map(([from, to], index) => ({
       id: `edge-${from}-${to}-${index}`,
       from,
       to,

@@ -337,7 +337,7 @@ export default function MainPage() {
 
       <GraphVisualization
         nodes={parsedNodes}
-        graph={parsedGraph}
+        edges={parsedGraph}
         path={response || undefined}
       />
 
