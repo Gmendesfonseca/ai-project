@@ -47,17 +47,7 @@ export function GraphVisualization({
 }) {
   if (!nodes || !graph) return null;
 
-  const events = {
-    select: ({ nodes, edges }: { nodes: string[]; edges: string[] }) => {
-      console.log('Selected nodes:');
-      console.log(nodes);
-      console.log('Selected edges:');
-      console.log(edges);
-      if (nodes.length > 0) {
-        alert('Selected node: ' + nodes[0]);
-      }
-    },
-  };
+  console.log({ graph });
 
   // Helper function to check if an edge is in the path
   const isEdgeInPath = (from: string, to: string): boolean => {
@@ -69,6 +59,39 @@ export function GraphVisualization({
       }
     }
     return false;
+  };
+
+  graph.flatMap((connections, index) =>
+    connections
+      .filter((conn) => conn !== nodes[index]) // Filter out self-pointing edges
+      .map((conn, connIndex) => {
+        console.log('Edge from', nodes[index], 'to', conn);
+        return {
+          id: `edge-${nodes[index]}-${conn}-${connIndex}`,
+          from: nodes[index],
+          to: conn,
+          color: isEdgeInPath(nodes[index], conn) ? '#4CAF50' : '#666666',
+          width: isEdgeInPath(nodes[index], conn) ? 4 : 2,
+          arrows: {
+            to: {
+              enabled: true,
+              scaleFactor: isEdgeInPath(nodes[index], conn) ? 1.2 : 1,
+            },
+          },
+        };
+      }),
+  );
+
+  const events = {
+    select: ({ nodes, edges }: { nodes: string[]; edges: string[] }) => {
+      console.log('Selected nodes:');
+      console.log(nodes);
+      console.log('Selected edges:');
+      console.log(edges);
+      if (nodes.length > 0) {
+        alert('Selected node: ' + nodes[0]);
+      }
+    },
   };
 
   const graphData = {

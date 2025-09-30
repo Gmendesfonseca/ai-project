@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { UninformedSearchHttpGateway } from '../@core/infra/gateways/http/uninformed-search.gateway';
 import { AxiosHttpAdapter } from '../@core/infra/http/axios.adapter';
 import { UninformedSearchTypes } from './helper';
-import { GraphVisualization } from './Graph';
+import { GraphVisualization } from './GraphVisualization';
 
 interface SearchFormData {
   type: UninformedSearchTypes;
