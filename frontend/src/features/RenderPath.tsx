@@ -13,7 +13,7 @@ export function RenderPath({ path }: Props) {
         padding: '10px',
         backgroundColor: hasNoPath ? '#ffebee' : '#e8f5e8',
         borderRadius: '8px',
-        border: '1px solid'.concat(hasNoPath ? '#f44336' : '#4CAF50'),
+        border: '1px solid '.concat(hasNoPath ? '#f44336' : '#4CAF50'),
       }}
     >
       {hasNoPath ? (
