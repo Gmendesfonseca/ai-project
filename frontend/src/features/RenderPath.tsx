@@ -1,7 +1,11 @@
-export function RenderPath({ path }: { path: string[] | null }) {
+type Props = {
+  path: string[] | null;
+};
+
+export function RenderPath({ path }: Props) {
   if (!path) return null;
 
-  if (path.length === 0) {
+  if (path.length === 0)
     return (
       <div
         style={{
@@ -15,7 +19,6 @@ export function RenderPath({ path }: { path: string[] | null }) {
         <strong style={{ color: '#c62828' }}>No Path Found</strong>
       </div>
     );
-  }
 
   return (
     <div
