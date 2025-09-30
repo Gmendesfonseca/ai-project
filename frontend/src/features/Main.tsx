@@ -223,6 +223,7 @@ export default function MainPage() {
 
           <div>
             <label
+              htmlFor="nodes-input"
               style={{
                 display: 'block',
                 marginBottom: '5px',
@@ -232,6 +233,7 @@ export default function MainPage() {
               Nodes (JSON array):
             </label>
             <input
+              id="nodes-input"
               {...register('nodes', { required: 'Nodes are required' })}
               type="text"
               placeholder='["A", "B", "C", "D"]'
@@ -240,6 +242,24 @@ export default function MainPage() {
                 padding: '8px',
                 marginBottom: '5px',
                 boxSizing: 'border-box',
+              }}
+            />
+            <input
+              type="file"
+              accept=".json,.txt,application/json,text/plain"
+              style={{ marginBottom: '5px', display: 'block' }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const text = await file.text();
+                const event = new Event('input', { bubbles: true });
+                const input = document.getElementById(
+                  'nodes-input'
+                ) as HTMLInputElement;
+                if (input) {
+                  input.value = text;
+                  input.dispatchEvent(event);
+                }
               }}
             />
             {errors.nodes && (
