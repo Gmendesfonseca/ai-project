@@ -35,16 +35,17 @@ const options = {
     selectConnectedEdges: false,
   },
 };
+type GraphVisualizationProps = {
+  nodes: string[];
+  edges: string[][];
+  path?: string[];
+};
 
 export function GraphVisualization({
   nodes,
   edges,
   path,
-}: {
-  nodes: string[];
-  edges: string[][];
-  path?: string[];
-}) {
+}: GraphVisualizationProps) {
   if (!nodes || !edges) return null;
 
   const isEdgeInPath = (from: string, to: string): boolean => {
@@ -138,9 +139,6 @@ export function GraphVisualization({
           options={options}
           events={events}
           style={{ width: '100%', height: '100%' }}
-          getNetwork={() => {
-            //  if you want access to vis.js network api you can set the state in a parent component using this property
-          }}
         />
       </div>
     </div>
