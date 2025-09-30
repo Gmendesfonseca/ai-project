@@ -79,7 +79,7 @@ export function GraphVisualization({
             },
           },
         };
-      }),
+      })
   );
 
   const events = {
@@ -106,23 +106,19 @@ export function GraphVisualization({
       borderWidth: path?.includes(node) ? 3 : 2,
       borderColor: path?.includes(node) ? '#2E7D32' : '#1976D2',
     })),
-    edges: graph.flatMap((connections, index) =>
-      connections
-        .filter((conn) => conn !== nodes[index]) // Filter out self-pointing edges
-        .map((conn, connIndex) => ({
-          id: `edge-${nodes[index]}-${conn}-${connIndex}`,
-          from: nodes[index],
-          to: conn,
-          color: isEdgeInPath(nodes[index], conn) ? '#4CAF50' : '#666666',
-          width: isEdgeInPath(nodes[index], conn) ? 4 : 2,
-          arrows: {
-            to: {
-              enabled: true,
-              scaleFactor: isEdgeInPath(nodes[index], conn) ? 1.2 : 1,
-            },
-          },
-        })),
-    ),
+    edges: graph.map(([from, to], index) => ({
+      id: `edge-${from}-${to}-${index}`,
+      from,
+      to,
+      color: isEdgeInPath(from, to) ? '#4CAF50' : '#666666',
+      width: isEdgeInPath(from, to) ? 4 : 2,
+      arrows: {
+        to: {
+          enabled: true,
+          scaleFactor: isEdgeInPath(from, to) ? 1.2 : 1,
+        },
+      },
+    })),
   };
 
   return (
