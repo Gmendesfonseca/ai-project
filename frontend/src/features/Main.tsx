@@ -74,12 +74,12 @@ export default function MainPage() {
         [UninformedSearchTypes.DEPTH_LIMITED]: () =>
           gateway.depthLimited({
             ...baseParams,
-            limit: data.limit,
+            limit: Number(data.limit),
           }),
         [UninformedSearchTypes.ITERATIVE]: () =>
           gateway.iterativeDeepening({
             ...baseParams,
-            max_limit: data.maxLimit,
+            max_limit: Number(data.maxLimit),
           }),
         [UninformedSearchTypes.BIDIRECTIONAL]: () =>
           gateway.bidirectional(baseParams),
