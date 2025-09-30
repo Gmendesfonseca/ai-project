@@ -1,4 +1,5 @@
 import Graph from '@/lib/react-graph-vis';
+import { RenderPath } from './RenderPath';
 
 const options = {
   layout: {
@@ -35,10 +36,11 @@ const options = {
     selectConnectedEdges: false,
   },
 };
+
 type GraphVisualizationProps = {
   nodes: string[];
   edges: string[][];
-  path?: string[];
+  path: string[] | null;
 };
 
 export function GraphVisualization({
@@ -112,20 +114,7 @@ export function GraphVisualization({
       <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>
         Graph Visualization
       </h3>
-      {path && path.length > 0 && (
-        <div
-          style={{
-            marginBottom: '15px',
-            padding: '10px',
-            backgroundColor: '#e8f5e8',
-            borderRadius: '8px',
-            border: '1px solid #4CAF50',
-          }}
-        >
-          <strong style={{ color: '#2E7D32' }}>Path Found: </strong>
-          <span style={{ color: '#1B5E20' }}>{path.join(' → ')}</span>
-        </div>
-      )}
+      <RenderPath path={path} />
       <div
         style={{
           height: '400px',

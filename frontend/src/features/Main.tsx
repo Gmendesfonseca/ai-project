@@ -86,7 +86,7 @@ export default function MainPage() {
       };
 
       const response = await options[data.type]();
-      setResponse(response?.path || null);
+      setResponse(response?.path || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setResponse(null);
@@ -338,7 +338,7 @@ export default function MainPage() {
       <GraphVisualization
         nodes={parsedNodes}
         edges={parsedGraph}
-        path={response || undefined}
+        path={response}
       />
 
       {!response && !error && !isLoading && (
