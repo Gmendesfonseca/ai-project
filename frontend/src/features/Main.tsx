@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { UninformedSearchHttpGateway } from '../@core/infra/gateways/http/uninformed-search.gateway';
 import { AxiosHttpAdapter } from '../@core/infra/http/axios.adapter';
 import { UninformedSearchTypes } from './helper';
+import { GraphVisualization } from './Graph';
 
 interface SearchFormData {
   type: UninformedSearchTypes;
@@ -92,121 +93,6 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }
-
-  // TODO: move to another file
-  function GraphVisualization({
-    nodes,
-    graph,
-    path,
-  }: {
-    nodes: string[];
-    graph: string[][];
-    path?: string[];
-  }) {
-    if (!nodes || !graph) return null;
-
-    return (
-      <div
-        className="graph-container"
-        style={{
-          marginTop: '20px',
-          padding: '20px',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-        }}
-      >
-        <h3>Graph Visualization</h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '10px',
-          }}
-        >
-          {nodes.map((node, index) => (
-            <div
-              key={node}
-              style={{
-                padding: '10px',
-                border: '2px solid #333',
-                borderRadius: '50%',
-                textAlign: 'center',
-                backgroundColor: path?.includes(node) ? '#90EE90' : '#f0f0f0',
-                color: path?.includes(node) ? '#000' : '#333',
-                fontWeight: path?.includes(node) ? 'bold' : 'normal',
-              }}
-            >
-              <div>
-                <strong>{node}</strong>
-              </div>
-              <div style={{ fontSize: '12px', marginTop: '5px' }}>
-                Connects to: {graph[index]?.join(', ') || 'None'}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // TODO: move to another file
-  function PathVisualization({ path }: { path: string[] }) {
-    if (!path || path.length === 0) return null;
-
-    return (
-      <div
-        className="path-container"
-        style={{
-          marginTop: '20px',
-          padding: '20px',
-          border: '1px solid #4CAF50',
-          borderRadius: '8px',
-          backgroundColor: '#f9f9f9',
-        }}
-      >
-        <h3>Path Found</h3>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '10px',
-          }}
-        >
-          {path.map((node, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
-              <div
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor:
-                    index === 0
-                      ? '#4CAF50'
-                      : index === path.length - 1
-                      ? '#FF5722'
-                      : '#2196F3',
-                  color: 'white',
-                  borderRadius: '20px',
-                  fontWeight: 'bold',
-                }}
-              >
-                {node}
-              </div>
-              {index < path.length - 1 && (
-                <div
-                  style={{ margin: '0 10px', fontSize: '18px', color: '#666' }}
-                >
-                  →
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-          Total steps: {path.length - 1}
-        </div>
-      </div>
-    );
   }
 
   let parsedNodes: string[] = [];
@@ -454,8 +340,6 @@ export default function MainPage() {
         graph={parsedGraph}
         path={response || undefined}
       />
-
-      {response && <PathVisualization path={response} />}
 
       {!response && !error && !isLoading && (
         <div
