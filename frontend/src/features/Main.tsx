@@ -111,7 +111,13 @@ export default function MainPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div
+      style={{
+        padding: '20px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+      }}
+    >
       <h1>Uninformed Search Algorithms</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '30px' }}>
@@ -134,7 +140,12 @@ export default function MainPage() {
             </label>
             <select
               {...register('type')}
-              style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+              style={{
+                width: '300px',
+                padding: '8px',
+                marginBottom: '10px',
+                boxSizing: 'border-box',
+              }}
             >
               <option value={UninformedSearchTypes.BREADTH}>
                 Breadth-First Search
@@ -168,7 +179,12 @@ export default function MainPage() {
               {...register('start', { required: 'Start node is required' })}
               type="text"
               placeholder="e.g., A"
-              style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+              style={{
+                width: '300px',
+                padding: '8px',
+                marginBottom: '5px',
+                boxSizing: 'border-box',
+              }}
             />
             {errors.start && (
               <div style={{ color: 'red', fontSize: '12px' }}>
@@ -191,7 +207,12 @@ export default function MainPage() {
               {...register('goal', { required: 'Goal node is required' })}
               type="text"
               placeholder="e.g., D"
-              style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+              style={{
+                width: '300px',
+                padding: '8px',
+                marginBottom: '5px',
+                boxSizing: 'border-box',
+              }}
             />
             {errors.goal && (
               <div style={{ color: 'red', fontSize: '12px' }}>
@@ -214,7 +235,12 @@ export default function MainPage() {
               {...register('nodes', { required: 'Nodes are required' })}
               type="text"
               placeholder='["A", "B", "C", "D"]'
-              style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+              style={{
+                width: '300px',
+                padding: '8px',
+                marginBottom: '5px',
+                boxSizing: 'border-box',
+              }}
             />
             {errors.nodes && (
               <div style={{ color: 'red', fontSize: '12px' }}>
@@ -237,7 +263,12 @@ export default function MainPage() {
               {...register('graph', { required: 'Graph is required' })}
               type="text"
               placeholder='[["B","C"],["A","D"],["A","D"],["B","C"]]'
-              style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+              style={{
+                width: '300px',
+                padding: '8px',
+                marginBottom: '5px',
+                boxSizing: 'border-box',
+              }}
             />
             {errors.graph && (
               <div style={{ color: 'red', fontSize: '12px' }}>
@@ -264,7 +295,12 @@ export default function MainPage() {
                 type="number"
                 min="1"
                 placeholder="3"
-                style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+                style={{
+                  width: '300px',
+                  padding: '8px',
+                  marginBottom: '5px',
+                  boxSizing: 'border-box',
+                }}
               />
               {errors.limit && (
                 <div style={{ color: 'red', fontSize: '12px' }}>
@@ -292,7 +328,12 @@ export default function MainPage() {
                 type="number"
                 min="1"
                 placeholder="5"
-                style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+                style={{
+                  width: '300px',
+                  padding: '8px',
+                  marginBottom: '5px',
+                  boxSizing: 'border-box',
+                }}
               />
               {errors.maxLimit && (
                 <div style={{ color: 'red', fontSize: '12px' }}>
