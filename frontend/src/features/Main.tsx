@@ -11,16 +11,23 @@ interface SearchFormData {
   type: UninformedSearchTypes;
   start: string;
   goal: string;
-  nodes: string;
-  graph: string;
   limit: number;
   maxLimit: number;
+}
+
+interface Graph {
+  nodes: string[];
+  edges: string[][];
 }
 
 export default function MainPage() {
   const [response, setResponse] = useState<string[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [graph, setGraph] = useState<Graph>({
+    nodes: [],
+    edges: [],
+  });
 
   const {
     register,
@@ -32,8 +39,6 @@ export default function MainPage() {
       type: UninformedSearchTypes.BREADTH,
       start: '',
       goal: '',
-      nodes: '',
-      graph: '',
       limit: 0,
       maxLimit: 0,
     },
@@ -44,28 +49,16 @@ export default function MainPage() {
   const httpClient = new AxiosHttpAdapter();
   const gateway = new UninformedSearchHttpGateway(httpClient);
 
-  function parseGraphData(graphStr: string, nodesStr: string) {
-    try {
-      const nodes = JSON.parse(nodesStr);
-      const graph = JSON.parse(graphStr);
-      return { nodes, graph };
-    } catch {
-      throw new Error('Invalid JSON format for nodes or graph');
-    }
-  }
-
   async function onSubmit(data: SearchFormData) {
     setIsLoading(true);
     setError(null);
 
     try {
-      const { nodes, graph } = parseGraphData(data.graph, data.nodes);
-
       const baseParams = {
         start: data.start,
         goal: data.goal,
-        nodes,
-        graph,
+        nodes: graph.nodes,
+        graph: graph.edges,
       };
 
       const options = {
@@ -95,19 +88,25 @@ export default function MainPage() {
     }
   }
 
-  let parsedNodes: string[] = [];
-  let parsedGraph: string[][] = [];
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.split('\n').map((line) => line.trim());
+    lines.pop();
+    parseFileContent(lines);
+    event.target.value = '';
+  }
 
-  try {
-    const nodesValue = watch('nodes');
-    const graphValue = watch('graph');
-    if (nodesValue && graphValue) {
-      const parsed = parseGraphData(graphValue, nodesValue);
-      parsedNodes = parsed.nodes;
-      parsedGraph = parsed.graph;
-    }
-  } catch {
-    // Ignore parsing errors for preview
+  function parseFileContent(fileContent: string[]) {
+    const pairNodes = fileContent.map((line) => line.split(','));
+    const parsedNodes = Array.from(
+      new Set(pairNodes.flat().map((node) => node.trim())),
+    ).filter((node) => node !== '');
+    const parsedGraph = pairNodes.map((pair) =>
+      pair.map((node) => node.trim()),
+    );
+    setGraph({ nodes: parsedNodes, edges: parsedGraph });
   }
 
   return (
@@ -118,7 +117,7 @@ export default function MainPage() {
         margin: '0 auto',
       }}
     >
-      <h1>Uninformed Search Algorithms</h1>
+      <h1>Algoritmos de Busca Não Informada</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '30px' }}>
         <div
@@ -136,7 +135,24 @@ export default function MainPage() {
                 fontWeight: 'bold',
               }}
             >
-              Search Algorithm:
+              Algoritmo de Busca:
+            </label>
+            <input
+              type="file"
+              accept=".txt"
+              style={{ marginBottom: '5px', display: 'block' }}
+              onChange={handleFileUpload}
+            />
+          </div>
+          <div>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '5px',
+                fontWeight: 'bold',
+              }}
+            >
+              Algoritmo de Busca:
             </label>
             <select
               {...register('type')}
@@ -147,20 +163,16 @@ export default function MainPage() {
                 boxSizing: 'border-box',
               }}
             >
-              <option value={UninformedSearchTypes.BREADTH}>
-                Breadth-First Search
-              </option>
-              <option value={UninformedSearchTypes.DEPTH}>
-                Depth-First Search
-              </option>
+              <option value={UninformedSearchTypes.BREADTH}>Amplitude</option>
+              <option value={UninformedSearchTypes.DEPTH}>Profundidade</option>
               <option value={UninformedSearchTypes.DEPTH_LIMITED}>
-                Depth-Limited Search
+                Limitada em Profundidade
               </option>
               <option value={UninformedSearchTypes.ITERATIVE}>
-                Iterative Deepening Search
+                Profundidade Iterativa
               </option>
               <option value={UninformedSearchTypes.BIDIRECTIONAL}>
-                Bidirectional Search
+                Bidirecional
               </option>
             </select>
           </div>
@@ -173,12 +185,12 @@ export default function MainPage() {
                 fontWeight: 'bold',
               }}
             >
-              Start Node:
+              Nó Inicial:
             </label>
             <input
-              {...register('start', { required: 'Start node is required' })}
+              {...register('start', { required: 'O nó inicial é obrigatório' })}
               type="text"
-              placeholder="e.g., A"
+              placeholder="ex.: A"
               style={{
                 width: '300px',
                 padding: '8px',
@@ -201,12 +213,12 @@ export default function MainPage() {
                 fontWeight: 'bold',
               }}
             >
-              Goal Node:
+              Nó Objetivo:
             </label>
             <input
-              {...register('goal', { required: 'Goal node is required' })}
+              {...register('goal', { required: 'O nó objetivo é obrigatório' })}
               type="text"
-              placeholder="e.g., D"
+              placeholder="ex.: D"
               style={{
                 width: '300px',
                 padding: '8px',
@@ -221,82 +233,6 @@ export default function MainPage() {
             )}
           </div>
 
-          <div>
-            <label
-              htmlFor="nodes-input"
-              style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold',
-              }}
-            >
-              Nodes (JSON array):
-            </label>
-            <input
-              id="nodes-input"
-              {...register('nodes', { required: 'Nodes are required' })}
-              type="text"
-              placeholder='["A", "B", "C", "D"]'
-              style={{
-                width: '300px',
-                padding: '8px',
-                marginBottom: '5px',
-                boxSizing: 'border-box',
-              }}
-            />
-            <input
-              type="file"
-              accept=".json,.txt,application/json,text/plain"
-              style={{ marginBottom: '5px', display: 'block' }}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const text = await file.text();
-                const event = new Event('input', { bubbles: true });
-                const input = document.getElementById(
-                  'nodes-input'
-                ) as HTMLInputElement;
-                if (input) {
-                  input.value = text;
-                  input.dispatchEvent(event);
-                }
-              }}
-            />
-            {errors.nodes && (
-              <div style={{ color: 'red', fontSize: '12px' }}>
-                {errors.nodes.message}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold',
-              }}
-            >
-              Graph (JSON array):
-            </label>
-            <input
-              {...register('graph', { required: 'Graph is required' })}
-              type="text"
-              placeholder='[["B","C"],["A","D"],["A","D"],["B","C"]]'
-              style={{
-                width: '300px',
-                padding: '8px',
-                marginBottom: '5px',
-                boxSizing: 'border-box',
-              }}
-            />
-            {errors.graph && (
-              <div style={{ color: 'red', fontSize: '12px' }}>
-                {errors.graph.message}
-              </div>
-            )}
-          </div>
-
           {watchType === UninformedSearchTypes.DEPTH_LIMITED && (
             <div>
               <label
@@ -306,11 +242,12 @@ export default function MainPage() {
                   fontWeight: 'bold',
                 }}
               >
-                Depth Limit:
+                Limite de Profundidade:
               </label>
               <input
                 {...register('limit', {
-                  required: 'Limit is required for depth-limited search',
+                  required:
+                    'O limite é obrigatório para busca limitada em profundidade',
                 })}
                 type="number"
                 min="1"
@@ -339,11 +276,12 @@ export default function MainPage() {
                   fontWeight: 'bold',
                 }}
               >
-                Max Depth Limit:
+                Limite Máximo de Profundidade:
               </label>
               <input
                 {...register('maxLimit', {
-                  required: 'Max limit is required for iterative deepening',
+                  required:
+                    'O limite máximo é obrigatório para busca em profundidade iterativa',
                 })}
                 type="number"
                 min="1"
@@ -378,7 +316,7 @@ export default function MainPage() {
             marginTop: '20px',
           }}
         >
-          {isLoading ? 'Searching...' : 'Execute Search'}
+          {isLoading ? 'Buscando...' : 'Executar Busca'}
         </button>
       </form>
 
@@ -392,13 +330,13 @@ export default function MainPage() {
             marginBottom: '20px',
           }}
         >
-          <strong>Error:</strong> {error}
+          <strong>Erro:</strong> {error}
         </div>
       )}
 
       <GraphVisualization
-        nodes={parsedNodes}
-        edges={parsedGraph}
+        nodes={graph.nodes}
+        edges={graph.edges}
         path={response}
       />
 
@@ -411,7 +349,7 @@ export default function MainPage() {
             fontStyle: 'italic',
           }}
         >
-          Enter graph data and execute a search to see results
+          Insira os dados do grafo e execute uma busca para ver os resultados
         </div>
       )}
     </div>
