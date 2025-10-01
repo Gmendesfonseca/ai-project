@@ -54,6 +54,18 @@ export default function MainPage() {
     setError(null);
 
     try {
+      // Validate if start and goal nodes exist in the graph
+      if (!graph.nodes.includes(data.start)) {
+        throw new Error(
+          `O nó inicial '${data.start}' não existe nos nós fornecidos.`,
+        );
+      }
+      if (!graph.nodes.includes(data.goal)) {
+        throw new Error(
+          `O nó objetivo '${data.goal}' não existe nos nós fornecidos.`,
+        );
+      }
+
       const baseParams = {
         start: data.start,
         goal: data.goal,
@@ -81,7 +93,7 @@ export default function MainPage() {
       const response = await options[data.type]();
       setResponse(response?.path || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Ocorreu um erro');
       setResponse(null);
     } finally {
       setIsLoading(false);
