@@ -34,6 +34,7 @@ const options = {
   interaction: {
     hover: true,
     selectConnectedEdges: false,
+    zoomView: false,
   },
 };
 
