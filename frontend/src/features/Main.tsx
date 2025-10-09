@@ -20,6 +20,22 @@ interface Graph {
   edges: string[][];
 }
 
+/*
+ This function parses the graph to format expect in payload.
+ Ex: node[0] = N1, edge[0] = [N1,N2] => [[N2], []]
+*/
+function parseGraph({ nodes, edges }: Graph) {
+  const graph: string[][] = nodes.map(() => []);
+  edges.forEach(([from, to]) => {
+    const fromIndex = nodes.indexOf(from);
+    const toIndex = nodes.indexOf(to);
+    if (fromIndex !== -1 && toIndex !== -1) {
+      graph[fromIndex].push(to);
+    }
+  });
+  return graph;
+}
+
 export default function MainPage() {
   const [response, setResponse] = useState<string[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +86,7 @@ export default function MainPage() {
         start: data.start,
         goal: data.goal,
         nodes: graph.nodes,
-        graph: graph.edges,
+        graph: parseGraph(graph),
       };
 
       const options = {
