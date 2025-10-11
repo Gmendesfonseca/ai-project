@@ -1,41 +1,54 @@
-import Graph from '@/lib/react-graph-vis';
+import Graph, { type GraphOptions } from '@/lib/react-graph-vis';
 import { RenderPath } from './RenderPath';
 
+const edges: GraphOptions['edges'] = {
+  width: 2,
+  color: { inherit: false },
+  arrows: {
+    to: {
+      enabled: true,
+      scaleFactor: 1,
+    },
+  },
+  shadow: true,
+  smooth: true,
+};
+
+const nodes: GraphOptions['nodes'] = {
+  shape: 'circle',
+  size: 25,
+  font: {
+    size: 16,
+    color: '#000000',
+  },
+  borderWidth: 2,
+  shadow: true,
+};
+
+const layout: GraphOptions['layout'] = {
+  hierarchical: false,
+};
+
+const interaction: GraphOptions['interaction'] = {
+  hover: true,
+  selectConnectedEdges: false,
+  zoomView: false,
+};
+
+const physics: GraphOptions['physics'] = {
+  enabled: false,
+  stabilization: {
+    enabled: true,
+    iterations: 150,
+  },
+};
+
 const options = {
-  layout: {
-    hierarchical: false,
-  },
-  physics: {
-    enabled: false,
-    stabilization: { iterations: 150 },
-  },
-  nodes: {
-    shape: 'circle',
-    size: 25,
-    font: {
-      size: 16,
-      color: '#000000',
-    },
-    borderWidth: 2,
-    shadow: true,
-  },
-  edges: {
-    width: 2,
-    color: { inherit: false },
-    arrows: {
-      to: {
-        enabled: true,
-        scaleFactor: 1,
-      },
-    },
-    shadow: true,
-    smooth: true,
-  },
-  interaction: {
-    hover: true,
-    selectConnectedEdges: false,
-    zoomView: false,
-  },
+  nodes,
+  edges,
+  layout,
+  interaction,
+  physics,
 };
 
 type GraphVisualizationProps = {
@@ -104,7 +117,6 @@ export function GraphVisualization({
   return (
     <div
       style={{
-        marginTop: '20px',
         padding: '20px',
         border: '2px solid #e0e0e0',
         borderRadius: '12px',
@@ -113,7 +125,7 @@ export function GraphVisualization({
       }}
     >
       <h3 style={{ margin: '0 0 15px 0', color: '#333' }}>
-        Graph Visualization
+        Visualização do Grafo
       </h3>
       <RenderPath path={path} />
       <div

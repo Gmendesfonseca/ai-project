@@ -2,7 +2,8 @@
 
 import React, { Suspense } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import MainPage from './features/Main';
+import MainPage from './features/Methods';
+import LoadingComponent from './components/Loading';
 
 export function ClientCounter() {
   const [count, setCount] = React.useState(0);
@@ -13,8 +14,6 @@ export function ClientCounter() {
     </button>
   );
 }
-
-const LoadingComponent = () => <div>Loading...</div>;
 
 export function Router() {
   const isBrowser =

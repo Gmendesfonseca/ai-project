@@ -1,28 +1,35 @@
 import React, { Component, createRef } from 'react';
 import type { RefObject } from 'react';
 import * as _ from 'lodash';
-import { DataSet } from 'vis-data';
-import { Network } from 'vis-network';
 import { v4 as uuidv4 } from 'uuid';
-import type { NetworkGraphProps, NetworkGraphState } from './types';
+import { Network } from 'vis-network';
+import { DataSet } from 'vis-data';
+import type {
+  NetworkGraphProps,
+  NetworkGraphState,
+  Options,
+  DiffResult,
+  Interaction,
+  PatchEdgesParams,
+  PatchNodesParams,
+  Configure,
+  Layout,
+  Manipulation,
+  Physics,
+} from './types';
 
-interface DiffResult<T> {
-  removed: T[];
-  unchanged: T[];
-  updated: T[];
-  added: T[];
-}
+export interface GraphOptions extends Options {
+  groups?: any;
 
-interface PatchEdgesParams {
-  edgesRemoved: any[];
-  edgesAdded: any[];
-  edgesChanged: any[];
-}
+  configure?: Configure; // https://visjs.github.io/vis-network/docs/network/configure.html
 
-interface PatchNodesParams {
-  nodesRemoved: any[];
-  nodesAdded: any[];
-  nodesChanged: any[];
+  layout?: Layout; // https://visjs.github.io/vis-network/docs/network/layout.html
+
+  interaction?: Interaction; // https://visjs.github.io/vis-network/docs/network/interaction.html?keywords=edges
+
+  manipulation?: Manipulation; // https://visjs.github.io/vis-network/docs/network/manipulation.html
+
+  physics?: Physics; // https://visjs.github.io/vis-network/docs/network/physics.html
 }
 
 const diff = <T extends Record<string, any>>(

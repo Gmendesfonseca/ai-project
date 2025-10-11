@@ -18,10 +18,10 @@ export function RenderPath({ path }: Props) {
       }}
     >
       {hasNoPath ? (
-        <strong style={{ color: '#c62828' }}>No Path Found</strong>
+        <strong style={{ color: '#c62828' }}>Nenhum caminho encontrado</strong>
       ) : (
         <>
-          <strong style={{ color: '#2E7D32' }}>Path Found: </strong>
+          <strong style={{ color: '#2E7D32' }}>Caminho encontrado: </strong>
           <span style={{ color: '#1B5E20' }}>{path.join(' → ')}</span>
         </>
       )}
