@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { UninformedSearchHttpGateway } from '../@core/infra/gateways/http/uninformed-search.gateway';
-import { AxiosHttpAdapter } from '../@core/infra/http/axios.adapter';
-import { UninformedSearchTypes } from './helper';
+import { SearchTypes } from './helper';
 import { GraphVisualization } from './GraphVisualization';
+import { AxiosHttpAdapter } from '@core/infra/http/axios.adapter';
+import { UninformedSearchHttpGateway } from '@core/infra/gateways/http/uninformed-search.gateway';
+import { InformedSearchHttpGateway } from '@core/infra/gateways/http/informed-search.gateway';
 
 interface SearchFormData {
-  type: UninformedSearchTypes;
+  type: SearchTypes;
   start: string;
   goal: string;
   limit: number;
@@ -20,10 +21,6 @@ interface Graph {
   edges: string[][];
 }
 
-/*
- This function parses the graph to format expect in payload.
- Ex: node[0] = N1, edge[0] = [N1,N2] => [[N2], []]
-*/
 function parseGraph({ nodes, edges }: Graph) {
   const graph: string[][] = nodes.map(() => []);
   edges.forEach(([from, to]) => {
@@ -36,9 +33,57 @@ function parseGraph({ nodes, edges }: Graph) {
   return graph;
 }
 
+function parseFileContent(fileContent: string[]) {
+  const pairNodes = fileContent.map((line) => line.split(','));
+  const parsedNodes = Array.from(
+    new Set(pairNodes.flat().map((node) => node.trim())),
+  ).filter((node) => node !== '');
+  const parsedGraph = pairNodes.map((pair) => pair.map((node) => node.trim()));
+  return { nodes: parsedNodes, edges: parsedGraph };
+}
+
+const options: { value: SearchTypes; label: string }[] = [
+  {
+    value: SearchTypes.BREADTH,
+    label: 'Amplitude',
+  },
+  {
+    value: SearchTypes.DEPTH,
+    label: 'Profundidade',
+  },
+  {
+    value: SearchTypes.DEPTH_LIMITED,
+    label: 'Limitada em Profundidade',
+  },
+  {
+    value: SearchTypes.ITERATIVE,
+    label: 'Aprofundamento Iterativo',
+  },
+  {
+    value: SearchTypes.BIDIRECTIONAL,
+    label: 'Bidirecional',
+  },
+  {
+    value: SearchTypes.UNIFORMED_COST,
+    label: 'Custo Uniforme',
+  },
+  {
+    value: SearchTypes.A_STAR,
+    label: 'A*',
+  },
+  {
+    value: SearchTypes.GREEDY,
+    label: 'Greedy',
+  },
+  {
+    value: SearchTypes.IDA_STAR,
+    label: 'AIA*',
+  },
+];
+
 export default function MainPage() {
   const [response, setResponse] = useState<string[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [graph, setGraph] = useState<Graph>({
     nodes: [],
@@ -52,7 +97,7 @@ export default function MainPage() {
     formState: { errors },
   } = useForm<SearchFormData>({
     defaultValues: {
-      type: UninformedSearchTypes.BREADTH,
+      type: SearchTypes.BREADTH,
       start: '',
       goal: '',
       limit: 0,
@@ -63,57 +108,79 @@ export default function MainPage() {
   const watchType = watch('type');
 
   const httpClient = new AxiosHttpAdapter();
-  const gateway = new UninformedSearchHttpGateway(httpClient);
+  const gateway = {
+    uniformed: new UninformedSearchHttpGateway(httpClient),
+    informed: new InformedSearchHttpGateway(httpClient),
+  };
 
   async function onSubmit(data: SearchFormData) {
-    setIsLoading(true);
-    setError(null);
+    startTransition(async () => {
+      setError(null);
 
-    try {
-      // Validate if start and goal nodes exist in the graph
-      if (!graph.nodes.includes(data.start)) {
-        throw new Error(
-          `O nó inicial '${data.start}' não existe nos nós fornecidos.`,
-        );
+      try {
+        if (!graph.nodes.includes(data.start)) {
+          throw new Error(
+            `O nó inicial '${data.start}' não existe nos nós fornecidos.`,
+          );
+        }
+        if (!graph.nodes.includes(data.goal)) {
+          throw new Error(
+            `O nó objetivo '${data.goal}' não existe nos nós fornecidos.`,
+          );
+        }
+
+        const baseParams = {
+          start: data.start,
+          goal: data.goal,
+          nodes: graph.nodes,
+          graph: parseGraph(graph),
+        };
+
+        const options = {
+          [SearchTypes.BREADTH]: () =>
+            gateway.uniformed.breadthFirst(baseParams),
+          [SearchTypes.DEPTH]: () => gateway.uniformed.depthFirst(baseParams),
+          [SearchTypes.DEPTH_LIMITED]: () =>
+            gateway.uniformed.depthLimited({
+              ...baseParams,
+              limit: Number(data.limit),
+            }),
+          [SearchTypes.ITERATIVE]: () =>
+            gateway.uniformed.iterativeDeepening({
+              ...baseParams,
+              max_limit: Number(data.maxLimit),
+            }),
+          [SearchTypes.BIDIRECTIONAL]: () =>
+            gateway.uniformed.bidirectional(baseParams),
+          [SearchTypes.UNIFORMED_COST]: () =>
+            gateway.informed.uniformCost({
+              ...baseParams,
+              heuristics: graph.nodes.map(() => 0),
+            }),
+          [SearchTypes.A_STAR]: () =>
+            gateway.informed.aStar({
+              ...baseParams,
+              heuristics: graph.nodes.map(() => 0),
+            }),
+          [SearchTypes.GREEDY]: () =>
+            gateway.informed.greedy({
+              ...baseParams,
+              heuristics: graph.nodes.map(() => 0),
+            }),
+          [SearchTypes.IDA_STAR]: () =>
+            gateway.informed.idaStar({
+              ...baseParams,
+              heuristics: graph.nodes.map(() => 0),
+            }),
+        };
+
+        const response = await options[data.type]();
+        setResponse(response?.path || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Ocorreu um erro');
+        setResponse(null);
       }
-      if (!graph.nodes.includes(data.goal)) {
-        throw new Error(
-          `O nó objetivo '${data.goal}' não existe nos nós fornecidos.`,
-        );
-      }
-
-      const baseParams = {
-        start: data.start,
-        goal: data.goal,
-        nodes: graph.nodes,
-        graph: parseGraph(graph),
-      };
-
-      const options = {
-        [UninformedSearchTypes.BREADTH]: () => gateway.breadthFirst(baseParams),
-        [UninformedSearchTypes.DEPTH]: () => gateway.depthFirst(baseParams),
-        [UninformedSearchTypes.DEPTH_LIMITED]: () =>
-          gateway.depthLimited({
-            ...baseParams,
-            limit: Number(data.limit),
-          }),
-        [UninformedSearchTypes.ITERATIVE]: () =>
-          gateway.iterativeDeepening({
-            ...baseParams,
-            max_limit: Number(data.maxLimit),
-          }),
-        [UninformedSearchTypes.BIDIRECTIONAL]: () =>
-          gateway.bidirectional(baseParams),
-      };
-
-      const response = await options[data.type]();
-      setResponse(response?.path || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ocorreu um erro');
-      setResponse(null);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   }
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -122,19 +189,9 @@ export default function MainPage() {
     const text = await file.text();
     const lines = text.split('\n').map((line) => line.trim());
     lines.pop();
-    parseFileContent(lines);
+    const graph = parseFileContent(lines);
+    setGraph(graph);
     event.target.value = '';
-  }
-
-  function parseFileContent(fileContent: string[]) {
-    const pairNodes = fileContent.map((line) => line.split(','));
-    const parsedNodes = Array.from(
-      new Set(pairNodes.flat().map((node) => node.trim())),
-    ).filter((node) => node !== '');
-    const parsedGraph = pairNodes.map((pair) =>
-      pair.map((node) => node.trim()),
-    );
-    setGraph({ nodes: parsedNodes, edges: parsedGraph });
   }
 
   return (
@@ -145,7 +202,7 @@ export default function MainPage() {
         margin: '0 auto',
       }}
     >
-      <h1>Algoritmos de Busca Não Informada</h1>
+      <h1>Algoritmos de Busca</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '30px' }}>
         <div
@@ -191,17 +248,11 @@ export default function MainPage() {
                 boxSizing: 'border-box',
               }}
             >
-              <option value={UninformedSearchTypes.BREADTH}>Amplitude</option>
-              <option value={UninformedSearchTypes.DEPTH}>Profundidade</option>
-              <option value={UninformedSearchTypes.DEPTH_LIMITED}>
-                Limitada em Profundidade
-              </option>
-              <option value={UninformedSearchTypes.ITERATIVE}>
-                Profundidade Iterativa
-              </option>
-              <option value={UninformedSearchTypes.BIDIRECTIONAL}>
-                Bidirecional
-              </option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -261,7 +312,7 @@ export default function MainPage() {
             )}
           </div>
 
-          {watchType === UninformedSearchTypes.DEPTH_LIMITED && (
+          {watchType === SearchTypes.DEPTH_LIMITED && (
             <div>
               <label
                 style={{
@@ -295,7 +346,7 @@ export default function MainPage() {
             </div>
           )}
 
-          {watchType === UninformedSearchTypes.ITERATIVE && (
+          {watchType === SearchTypes.ITERATIVE && (
             <div>
               <label
                 style={{
@@ -332,19 +383,19 @@ export default function MainPage() {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={loading}
           style={{
             padding: '12px 24px',
-            backgroundColor: isLoading ? '#ccc' : '#4CAF50',
+            backgroundColor: loading ? '#ccc' : '#4CAF50',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
             fontSize: '16px',
             marginTop: '20px',
           }}
         >
-          {isLoading ? 'Buscando...' : 'Executar Busca'}
+          {loading ? 'Buscando...' : 'Executar Busca'}
         </button>
       </form>
 
@@ -368,7 +419,7 @@ export default function MainPage() {
         path={response}
       />
 
-      {!response && !error && !isLoading && (
+      {!response && !error && !loading && (
         <div
           style={{
             padding: '20px',

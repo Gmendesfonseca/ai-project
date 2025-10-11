@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict
 from service.UninformedSearch import UninformedSearch
+from service.InformedSearch import InformedSearch
 from flask_cors import CORS # type: ignore
 from flask import Flask, request, jsonify, abort # type: ignore
 
@@ -111,6 +112,81 @@ def bidirectional() -> Any:
         abort(400, description=f"Missing key: {e}")
     except Exception as e:
         logging.error(f"Error in bidirectional search: {e}")
+        abort(500, description=str(e))
+               
+@app.route('/search/uninformed/uniform_cost', methods=['POST'])
+def uniform_cost() -> Any:
+    data = get_json_data()
+    try:
+        search = InformedSearch()
+        start = data['start']
+        goal = data['goal']
+        nodes = data['nodes']
+        graph = data['graph']
+        result = search.uniform_cost(start, goal, nodes, graph)
+        return jsonify({'path': result})
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in uniform cost search: {e}")
+        abort(500, description=str(e))
+        
+@app.route('/search/informed/a_star', methods=['POST'])
+def a_star() -> Any:
+    data = get_json_data()
+    try:
+        search = InformedSearch()
+        start = data['start']
+        goal = data['goal']
+        nodes = data['nodes']
+        graph = data['graph']
+        heuristics = data['heuristics']
+        result = search.a_star(start, goal, nodes, graph, heuristics)
+        return jsonify({'path': result})
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in A* search: {e}")
+        abort(500, description=str(e))
+        
+@app.route('/search/informed/greedy', methods=['POST'])
+def greedy() -> Any:
+    data = get_json_data()
+    try:
+        search = InformedSearch()
+        start = data['start']
+        goal = data['goal']
+        nodes = data['nodes']
+        graph = data['graph']
+        heuristics = data['heuristics']
+        result = search.greedy(start, goal, nodes, graph, heuristics)
+        return jsonify({'path': result})
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in greedy search: {e}")
+        abort(500, description=str(e))
+        
+@app.route('/search/informed/ida_star', methods=['POST'])
+def ida_star() -> Any:
+    data = get_json_data()
+    try:
+        search = InformedSearch()
+        start = data['start']
+        goal = data['goal']
+        nodes = data['nodes']
+        graph = data['graph']
+        heuristics = data['heuristics']
+        result = search.ida_star(start, goal, nodes, graph, heuristics)
+        return jsonify({'path': result})
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in IDA* search: {e}")
         abort(500, description=str(e))
 
 @app.errorhandler(404)

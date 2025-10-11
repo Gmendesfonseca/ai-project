@@ -13,7 +13,7 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "paths": {
-      "@core": ["./src/@core/*"],
+      "@core/*": ["./src/core/*"],
       "@/*": ["./src/*"]
     },
     "types": ["vite/client", "@vitejs/plugin-rsc/types"],

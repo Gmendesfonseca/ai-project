@@ -4,6 +4,7 @@ type Props = {
 
 export function RenderPath({ path }: Props) {
   if (!path) return null;
+
   const hasNoPath = path.length === 0;
 
   return (
