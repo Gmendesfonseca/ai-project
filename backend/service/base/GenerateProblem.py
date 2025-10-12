@@ -6,6 +6,7 @@ import random as rd
 PATH_MSG = "Path: "
 COST_MSG = "Cost..: "
 NOT_FOUND_MSG = "PATH NOT FOUND"
+DEPTH_LIMITED_MSG = "*****DEPTH LIMITED*****"
 
 #-----------------------------------------------------------------------------
 # IMPORT GRAPH FROM TEXT FILE
@@ -22,34 +23,6 @@ def generate_graph_problem(file_path):
         graph.append(str1[1:])
     
     return nodes, graph
-#-----------------------------------------------------------------------------
-# GERA GRID ALEATÓRIO
-#-----------------------------------------------------------------------------
-def generate_random_grid_problem(nx,ny,qty):
-    mapa = np.zeros((nx,ny),int)
-    
-    k = 0
-    while k<qty:
-        i = rd.randrange(0,nx)
-        j = rd.randrange(0,ny)
-        if mapa[i][j]==0:
-            mapa[i][j] = 9
-            k+=1
-    return mapa,nx,ny
-#-----------------------------------------------------------------------------
-# GERA O GRID DE ARQUIVO TEXTO
-#-----------------------------------------------------------------------------
-def generate_fixed_grid_problem(file_path):
-    file = open(file_path)
-    mapa = []
-    for line in file:
-        aux_str = line.strip("\n")
-        aux_str = aux_str.split(",")
-        aux_int = [int(x) for x in aux_str]
-        mapa.append(aux_int)
-    nx = len(mapa)
-    ny = len(mapa[0])
-    return mapa,nx,ny
 #-----------------------------------------------------------------------------
 # MAIN PROGRAM
 #-----------------------------------------------------------------------------
@@ -70,63 +43,62 @@ if flag:
     path = []
     path = sol.breadth_first(origin,destination,nodes,graph)
     if path!=None:
-        print("\n*****BREADTH FIRST*****")
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print("\n" + DEPTH_LIMITED_MSG)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
   
     path = sol.depth_first(origin,destination,nodes,graph)
-    print("\n*****DEPTH FIRST*****")
+    print("\n" + DEPTH_LIMITED_MSG)
     if path!=None:
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
 
     limit = 2
     path = sol.depth_limited(origin,destination,nodes,graph,limit)
-    print("\n*****DEPTH LIMITED*****")
+    print("\n" + DEPTH_LIMITED_MSG)
     if path!=None:
-        print("\n*****DEPTH LIMITED*****")
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
     
     limit = 3
     path = sol.depth_limited(origin,destination,nodes,graph,limit)
-    print("\n*****DEPTH LIMITED*****")
+    print("\n" + DEPTH_LIMITED_MSG)
     if path!=None:
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
     
     limit = 4
     path = sol.depth_limited(origin,destination,nodes,graph,limit)
-    print("\n*****DEPTH LIMITED*****")
+    print("\n" + DEPTH_LIMITED_MSG)
     if path!=None:
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
 
     max_limit = len(nodes)
     path = sol.iterative_deepening(origin,destination,nodes,graph,max_limit)
     if path!=None:
         print("\n*****ITERATIVE DEEPENING*****")
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
         
     path = sol.bidirectional(origin,destination,nodes,graph)
     if path!=None:
         print("\n*****BIDIRECTIONAL*****")
-        print("Path: ",path)
-        print("Cost..: ",len(path)-1)
+        print(PATH_MSG,path)
+        print(COST_MSG,len(path)-1)
     else:
-        print("PATH NOT FOUND")
+        print(NOT_FOUND_MSG)
 else:
     print("Invalid initial/final state")

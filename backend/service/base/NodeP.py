@@ -1,4 +1,5 @@
-from Node import Node
+from .Node import Node
+
 
 class NodeP(Node):
     def __init__(self, parent=None, state=None, v1=None,

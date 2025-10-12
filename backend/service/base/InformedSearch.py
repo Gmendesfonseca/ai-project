@@ -1,5 +1,5 @@
 from collections import deque
-from NodeP import NodeP
+from .NodeP import NodeP
 from math import sqrt
 
 

@@ -1,7 +1,10 @@
 import logging
 from typing import Any, Dict
-from service.UninformedSearch import UninformedSearch
-from service.InformedSearch import InformedSearch
+from service.base.UninformedSearch import UninformedSearch
+from service.base.InformedSearch import InformedSearch
+from service.implementation.TaskSchedulingSearch import TaskSchedulingSearch
+from service.implementation.TaskSchedulingData import SetupMatrix
+from service.implementation.TaskFamily import TaskFamily
 from flask_cors import CORS # type: ignore
 from flask import Flask, request, jsonify, abort # type: ignore
 
@@ -187,6 +190,136 @@ def ida_star() -> Any:
         abort(400, description=f"Missing key: {e}")
     except Exception as e:
         logging.error(f"Error in IDA* search: {e}")
+        abort(500, description=str(e))
+        
+@app.route('/scheduling/task-sequence/a_star', methods=['POST'])
+def task_sequence_a_star() -> Any:
+    """A* para sequenciamento de tarefas com setups"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        heuristic = data.get('heuristic', 'h1')
+        family_data = data.get('families')
+
+        # Criar estruturas de dados
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+
+        families = TaskFamily(family_data) if family_data else None
+
+        # Executar algoritmo
+        sequence, cost = search.a_star_scheduling(tasks, setup_matrix, heuristic, families)
+
+        # Calcular detalhes dos setups
+        setup_details = []
+        if sequence:
+            prev = 0  # Nó inicial
+            for task in sequence:
+                setup_cost = setup_matrix.get_setup_cost(prev, task)
+                setup_details.append({
+                    "from": prev,
+                    "to": task,
+                    "cost": setup_cost
+                })
+                prev = task
+
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'setup_details': setup_details,
+            'algorithm': 'A*',
+            'heuristic': heuristic
+        })
+
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in A* task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/greedy', methods=['POST'])
+def task_sequence_greedy() -> Any:
+    """Busca gulosa para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        heuristic = data.get('heuristic', 'h1')
+        family_data = data.get('families')
+
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+
+        families = TaskFamily(family_data) if family_data else None
+        sequence, cost = search.greedy_scheduling(tasks, setup_matrix, heuristic, families)
+
+        setup_details = []
+        if sequence:
+            prev = 0
+            for task in sequence:
+                setup_cost = setup_matrix.get_setup_cost(prev, task)
+                setup_details.append({"from": prev, "to": task, "cost": setup_cost})
+                prev = task
+
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'setup_details': setup_details,
+            'algorithm': 'Greedy',
+            'heuristic': heuristic
+        })
+
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in greedy task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/uniform_cost', methods=['POST'])
+def task_sequence_uniform_cost() -> Any:
+    """Custo uniforme para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+
+        sequence, cost = search.uniform_cost_scheduling(tasks, setup_matrix)
+
+        setup_details = []
+        if sequence:
+            prev = 0
+            for task in sequence:
+                setup_cost = setup_matrix.get_setup_cost(prev, task)
+                setup_details.append({"from": prev, "to": task, "cost": setup_cost})
+                prev = task
+
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'setup_details': setup_details,
+            'algorithm': 'Uniform Cost'
+        })
+
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in uniform cost task scheduling: {e}")
         abort(500, description=str(e))
 
 @app.errorhandler(404)
