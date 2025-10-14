@@ -134,29 +134,6 @@ export default function TaskSchedulingForm({
     }
   }
 
-  function parseFamilies(
-    familiesStr: string,
-  ): Record<number, string> | undefined {
-    if (!familiesStr.trim()) return undefined;
-
-    try {
-      const lines = familiesStr.trim().split('\n');
-      const families: Record<number, string> = {};
-
-      for (const line of lines) {
-        const match = line.match(/(\d+):\s*(.+)/);
-        if (match) {
-          const [, task, family] = match;
-          families[parseInt(task)] = family.trim();
-        }
-      }
-
-      return Object.keys(families).length > 0 ? families : undefined;
-    } catch (error) {
-      throw new Error('Formato inválido para famílias. Use: tarefa: família');
-    }
-  }
-
   async function onSubmit(formData: TaskSchedulingFormData) {
     startTransition(async () => {
       setError(null);
@@ -176,16 +153,26 @@ export default function TaskSchedulingForm({
         // Parse setup matrix
         const setupMatrix = parseSetupMatrix(formData.setupMatrix);
 
-        // Parse families (optional)
-        const families = formData.families
-          ? parseFamilies(formData.families)
-          : undefined;
+        // Parse families from individual task inputs (optional)
+        const families: Record<number, string> = {};
+        let hasFamilies = false;
+
+        // Collect family data from individual task inputs
+        for (const task of tasks) {
+          const familyValue = (formData as any)[`family_${task}`];
+          if (familyValue && familyValue.trim()) {
+            families[task] = familyValue.trim();
+            hasFamilies = true;
+          }
+        }
+
+        const finalFamilies = hasFamilies ? families : undefined;
 
         // Update local state
         const taskData: TaskSchedulingData = {
           tasks,
           setupMatrix,
-          families,
+          families: finalFamilies,
         };
         setData(taskData);
 
@@ -194,7 +181,7 @@ export default function TaskSchedulingForm({
           tasks,
           setup_matrix: setupMatrix,
           heuristic: formData.heuristic,
-          families,
+          families: finalFamilies,
         };
 
         let result: TaskSchedulingResponse | null = null;
@@ -374,20 +361,64 @@ export default function TaskSchedulingForm({
             watch('heuristic') === 'h3' && (
               <div>
                 <Label>Famílias de Produtos (opcional)</Label>
-                <textarea
-                  id="families"
-                  placeholder="1: ProductA&#10;2: ProductA&#10;3: ProductB"
-                  {...register('families')}
-                  style={{
-                    width: '100%',
-                    minHeight: '80px',
-                    padding: '8px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontFamily: 'monospace',
-                    fontSize: '12px',
-                  }}
-                />
+                {data.tasks.length > 0 ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      padding: '8px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      backgroundColor: '#f9f9f9',
+                    }}
+                  >
+                    {data.tasks.map((task) => (
+                      <div
+                        key={task}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <label
+                          style={{
+                            minWidth: '60px',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          Tarefa {task}:
+                        </label>
+                        <Input
+                          placeholder={`Família da tarefa ${task}`}
+                          {...register(`family_${task}` as any)}
+                          style={{
+                            flex: 1,
+                            padding: '4px 8px',
+                            fontSize: '12px',
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      padding: '12px',
+                      textAlign: 'center',
+                      color: '#666',
+                      fontStyle: 'italic',
+                      border: '1px dashed #ccc',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Carregue um arquivo para definir famílias das tarefas
+                  </div>
+                )}
               </div>
             )}
 
