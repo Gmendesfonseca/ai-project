@@ -11,3 +11,4 @@ export type BaseOutput = Promise<MethodResponse | null>;
 
 export * from './uninformed-search.gateway';
 export * from './informed-search.gateway';
+export * from './task-scheduling.gateway';

@@ -1,6 +1,7 @@
-from backend.service.base.InformedSearch import InformedSearch
+from ..base.InformedSearch import InformedSearch
 from .TaskSchedulingNode import TaskSchedulingNode
-from .TaskSchedulingData import SetupMatrix, TaskFamily
+from .TaskSchedulingData import SetupMatrix
+from .TaskFamily import TaskFamily
 from .TaskSchedulingHeuristics import TaskSchedulingHeuristics
 from typing import List, Tuple, Optional
 

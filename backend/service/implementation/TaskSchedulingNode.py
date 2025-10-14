@@ -1,4 +1,5 @@
-from backend.service.base.NodeP import NodeP
+from ..base.NodeP import NodeP
+from typing import List
 
 class TaskSchedulingNode(NodeP):
     def __init__(self, remaining_bitmask: int, last_task: int,

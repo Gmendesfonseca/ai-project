@@ -1,24 +1,26 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { GraphVisualization } from './components/GraphVisualization';
-import Form from './components/Form';
+import TaskSchedulingForm from './components/TaskSchedulingForm';
+import TaskSequenceVisualization from './components/TaskSequenceVisualization';
+import type { TaskSchedulingResponse } from '@core/domain/gateway/task-scheduling.gateway';
 
-export interface Graph {
-  nodes: string[];
-  edges: string[][];
+export interface TaskSchedulingData {
+  tasks: number[];
+  setupMatrix: Record<string, number>;
+  families?: Record<number, string>;
 }
 
-const defaultGraph: Graph = {
-  nodes: [],
-  edges: [],
+const defaultData: TaskSchedulingData = {
+  tasks: [],
+  setupMatrix: {},
 };
 
-export default function MainPage() {
+export default function TaskSchedulePage() {
   const [loading, startTransition] = useTransition();
-  const [response, setResponse] = useState<string[] | null>(null);
+  const [response, setResponse] = useState<TaskSchedulingResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [graph, setGraph] = useState<Graph>(defaultGraph);
+  const [data, setData] = useState<TaskSchedulingData>(defaultData);
 
   return (
     <div
@@ -29,7 +31,7 @@ export default function MainPage() {
       }}
     >
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <h1>Algoritmos de Busca</h1>
+        <h1>Sequenciamento de Tarefas com Setups</h1>
         <div
           style={{
             display: 'flex',
@@ -71,49 +73,19 @@ export default function MainPage() {
           gap: '40px',
         }}
       >
-        <Form
-          graph={graph}
+        <TaskSchedulingForm
+          data={data}
           loading={loading}
-          setGraph={setGraph}
+          setData={setData}
           setError={setError}
           setResponse={setResponse}
           startTransition={startTransition}
         />
-        {error && (
-          <div
-            style={{
-              padding: '10px',
-              backgroundColor: '#ffebee',
-              color: '#c62828',
-              borderRadius: '4px',
-              marginBottom: '20px',
-            }}
-          >
-            <strong>Erro:</strong> {error}
-          </div>
-        )}
-
-        <div>
-          <GraphVisualization
-            nodes={graph.nodes}
-            edges={graph.edges}
-            path={response}
-          />
-
-          {!response && !error && !loading && (
-            <div
-              style={{
-                padding: '20px',
-                textAlign: 'center',
-                color: '#666',
-                fontStyle: 'italic',
-              }}
-            >
-              Insira os dados do grafo e execute uma busca para ver os
-              resultados
-            </div>
-          )}
-        </div>
+        <TaskSequenceVisualization
+          response={response}
+          error={error}
+          data={data}
+        />
       </div>
     </div>
   );

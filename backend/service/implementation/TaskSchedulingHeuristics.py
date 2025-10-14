@@ -6,19 +6,19 @@ import heapq
   
 class TaskSchedulingHeuristics:
     @staticmethod
-    def h1_minimum_outgoing_edges(self, state: TaskSchedulingNode) -> float:
+    def h1_minimum_outgoing_edges(node: TaskSchedulingNode, setup_matrix: SetupMatrix) -> float:
       """
       Implementa heurística H1: soma dos menores custos de saída
       para cada tarefa restante, menos o maior (uma tarefa não terá saída)
       """
-      if state.remaining_bitmask == 0:
+      if node.remaining_bitmask == 0:
           return 0.0
 
-      remaining_tasks = self._bitmask_to_tasks(state.remaining_bitmask)
+      remaining_tasks = node.get_remaining_tasks(setup_matrix.tasks)
 
       # Custo mínimo para sair da última tarefa processada
       min_cost_from_last = min(
-          self.setup_matrix.get_cost(state.last_task, task)
+          setup_matrix.get_setup_cost(node.last_task, task)
           for task in remaining_tasks
       )
 
@@ -27,7 +27,7 @@ class TaskSchedulingHeuristics:
       for from_task in remaining_tasks:
           if len(remaining_tasks) > 1:  # Se não é a última tarefa
               min_out = min(
-                  self.setup_matrix.get_cost(from_task, to_task)
+                  setup_matrix.get_setup_cost(from_task, to_task)
                   for to_task in remaining_tasks if to_task != from_task
               )
               outgoing_costs.append(min_out)
@@ -40,35 +40,35 @@ class TaskSchedulingHeuristics:
       return min_cost_from_last + total_outgoing
     
     @staticmethod
-    def h2_mst_symmetric(self, state: TaskSchedulingNode) -> float:
+    def h2_mst_symmetric(node: TaskSchedulingNode, setup_matrix: SetupMatrix) -> float:
       """
       Para casos onde s_ij ≈ s_ji, usa árvore geradora mínima
       """
-      if state.remaining_bitmask == 0:
+      if node.remaining_bitmask == 0:
           return 0.0
 
-      remaining_tasks = self._bitmask_to_tasks(state.remaining_bitmask)
+      remaining_tasks = node.get_remaining_tasks(setup_matrix.tasks)
 
       # Custo para conectar última tarefa ao componente
       min_connection = min(
-          self.setup_matrix.get_cost(state.last_task, task)
+          setup_matrix.get_setup_cost(node.last_task, task)
           for task in remaining_tasks
       )
 
       # MST sobre tarefas restantes
-      mst_cost = self._compute_mst(remaining_tasks)
+      mst_cost = TaskSchedulingHeuristics._compute_mst(remaining_tasks, setup_matrix)
 
       return min_connection + mst_cost
     
     @staticmethod
-    def h3_product_families(self, state: TaskSchedulingNode, families: TaskFamily) -> float:
+    def h3_product_families(node: TaskSchedulingNode, setup_matrix: SetupMatrix, families: TaskFamily) -> float:
       """
       Quando setups intrafamília são zero, conta trocas de família necessárias
       """
-      if state.remaining_bitmask == 0:
+      if node.remaining_bitmask == 0:
           return 0.0
 
-      remaining_tasks = self._bitmask_to_tasks(state.remaining_bitmask)
+      remaining_tasks = node.get_remaining_tasks(setup_matrix.tasks)
 
       # Conta famílias diferentes restantes
       remaining_families = {
@@ -77,14 +77,14 @@ class TaskSchedulingHeuristics:
       }
 
       # Se última tarefa tem família conhecida
-      last_family = families.families.get(state.last_task)
+      last_family = families.families.get(node.last_task)
       if last_family and last_family in remaining_families:
           remaining_families.remove(last_family)
 
       # Número mínimo de trocas de família × menor custo inter-família
       family_switches = len(remaining_families)
       if family_switches > 0:
-          min_interfamily_cost = self._get_min_interfamily_cost(families)
+          min_interfamily_cost = families.get_min_interfamily_cost(setup_matrix)
           return family_switches * min_interfamily_cost
 
       return 0.0
@@ -121,18 +121,16 @@ class TaskSchedulingHeuristics:
         return mst_cost
       
     @staticmethod
-    def _bitmask_to_tasks(bitmask: int) -> List[int]:
+    def _bitmask_to_tasks(bitmask: int, task_list: List[int]) -> List[int]:
         """
         Converte bitmask para lista de IDs de tarefas
         
         :param bitmask: Bitmask representando tarefas restantes
+        :param task_list: Lista de todas as tarefas possíveis
         :return: Lista de IDs de tarefas restantes
         """
         tasks = []
-        index = 0
-        while bitmask > 0:
-            if bitmask & 1:
-                tasks.append(index + 1)  # Supondo IDs começam em 1
-            bitmask >>= 1
-            index += 1
+        for i, task in enumerate(task_list):
+            if bitmask & (1 << i):
+                tasks.append(task)
         return tasks

@@ -3,6 +3,7 @@
 import React, { Suspense } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import MainPage from './features/Methods';
+import TaskSchedulePage from './features/TaskSchedule';
 import LoadingComponent from './components/Loading';
 
 export function ClientCounter() {
@@ -23,7 +24,10 @@ export function Router() {
     return <LoadingComponent />;
   }
 
-  const router = createBrowserRouter([{ path: '/', element: <MainPage /> }]);
+  const router = createBrowserRouter([
+    { path: '/', element: <MainPage /> },
+    { path: '/task-scheduling', element: <TaskSchedulePage /> },
+  ]);
 
   return (
     <Suspense fallback={<LoadingComponent />}>
