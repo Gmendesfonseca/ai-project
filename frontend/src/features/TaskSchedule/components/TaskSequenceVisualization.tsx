@@ -1,10 +1,148 @@
 import type { TaskSchedulingResponse } from '@core/domain/gateway/task-scheduling.gateway';
 import type { TaskSchedulingData } from '..';
+import GraphVis, { type GraphOptions } from '@/lib/react-graph-vis';
 
 interface Props {
   response: TaskSchedulingResponse | null;
   error: string | null;
   data: TaskSchedulingData;
+}
+
+const taskGraphOptions: GraphOptions = {
+  nodes: {
+    shape: 'circle',
+    size: 30,
+    font: {
+      size: 14,
+      color: '#000000',
+    },
+    borderWidth: 2,
+    shadow: true,
+  },
+  edges: {
+    width: 3,
+    color: { inherit: false },
+    arrows: {
+      to: {
+        enabled: true,
+        scaleFactor: 1.2,
+      },
+    },
+    shadow: true,
+    smooth: {
+      enabled: true,
+      type: 'curvedCW',
+      roundness: 0.1,
+    },
+  },
+  layout: {
+    hierarchical: false,
+  },
+  interaction: {
+    hover: true,
+    selectConnectedEdges: false,
+    zoomView: false,
+    dragView: true,
+  },
+  physics: {
+    enabled: false,
+    stabilization: {
+      enabled: true,
+      iterations: 100,
+    },
+  },
+};
+
+function createTaskSequenceGraph(
+  tasks: number[],
+  sequence: number[],
+  setupMatrix: Record<string, number>,
+) {
+  // Create nodes - START node + task nodes
+  const nodes = [
+    {
+      id: '0',
+      label: 'START',
+      color: '#007bff',
+      font: { color: '#ffffff' },
+      x: 0,
+      y: 0,
+    },
+    ...tasks.map((task, index) => ({
+      id: task.toString(),
+      label: `T${task}`,
+      color: '#28a745',
+      font: { color: '#ffffff' },
+      x: Math.cos((index * 2 * Math.PI) / tasks.length) * 200 + 200,
+      y: Math.sin((index * 2 * Math.PI) / tasks.length) * 200 + 200,
+    })),
+  ];
+
+  // Create edges - show optimal sequence path + all possible edges
+  const edges: Array<{
+    id: string;
+    from: string;
+    to: string;
+    label: string;
+    color: string;
+    width: number;
+  }> = [];
+
+  // Add optimal sequence edges (highlighted)
+  if (sequence.length > 0) {
+    // Edge from START to first task
+    const firstTask = sequence[0];
+    const startCost = setupMatrix[`(0,${firstTask})`] || 0;
+    edges.push({
+      id: `optimal-0-${firstTask}`,
+      from: '0',
+      to: firstTask.toString(),
+      label: `${startCost}`,
+      color: '#28a745',
+      width: 4,
+    });
+
+    // Edges between consecutive tasks in sequence
+    for (let i = 0; i < sequence.length - 1; i++) {
+      const fromTask = sequence[i];
+      const toTask = sequence[i + 1];
+      const cost = setupMatrix[`(${fromTask},${toTask})`] || 0;
+      edges.push({
+        id: `optimal-${fromTask}-${toTask}`,
+        from: fromTask.toString(),
+        to: toTask.toString(),
+        label: `${cost}`,
+        color: '#28a745',
+        width: 4,
+      });
+    }
+  }
+
+  // Add all other edges (lighter color, thinner)
+  Object.entries(setupMatrix).forEach(([key, cost]) => {
+    const match = key.match(/\((\d+),(\d+)\)/);
+    if (match) {
+      const from = match[1];
+      const to = match[2];
+      const edgeId = `edge-${from}-${to}`;
+
+      // Check if this edge is already in optimal sequence
+      const isOptimal = edges.some((e) => e.id === `optimal-${from}-${to}`);
+
+      if (!isOptimal) {
+        edges.push({
+          id: edgeId,
+          from,
+          to,
+          label: `${cost}`,
+          color: '#dc3545',
+          width: 1,
+        });
+      }
+    }
+  });
+
+  return { nodes, edges };
 }
 
 export default function TaskSequenceVisualization({
@@ -72,6 +210,33 @@ export default function TaskSequenceVisualization({
         Resultado - {response.algorithm}
         {response.heuristic && ` (${response.heuristic.toUpperCase()})`}
       </h3>
+
+      {/* Graph Visualization */}
+      <div style={{ marginBottom: '30px' }}>
+        <h4 style={{ color: '#155724', marginBottom: '15px' }}>
+          Visualização do Sequenciamento:
+        </h4>
+        <div
+          style={{
+            height: '400px',
+            border: '1px solid #c3e6cb',
+            borderRadius: '8px',
+            backgroundColor: '#ffffff',
+            overflow: 'hidden',
+          }}
+        >
+          <GraphVis
+            key={`task-graph-${response.sequence.join('-')}`}
+            graph={createTaskSequenceGraph(
+              data.tasks,
+              response.sequence,
+              data.setupMatrix,
+            )}
+            options={taskGraphOptions}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </div>
+      </div>
 
       {/* Sequence Visualization */}
       <div style={{ marginBottom: '20px' }}>

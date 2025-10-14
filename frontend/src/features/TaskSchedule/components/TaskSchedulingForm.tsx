@@ -6,12 +6,19 @@ import {
 } from '../../Methods/utils/constants';
 import { AxiosHttpAdapter } from '@core/infra/http/axios.adapter';
 import { TaskSchedulingHttpGateway } from '@core/infra/gateways/http/task-scheduling.gateway';
+import { parseTaskFile } from '../utils/parseTaskFile';
+import {
+  formatTaskDataForDisplay,
+  validateTaskData,
+} from '../utils/formatTaskData';
+import { TASK_FILE_EXAMPLE } from '../utils/constants';
 import type { TaskSchedulingData } from '..';
 import type { TaskSchedulingResponse } from '@core/domain/gateway/task-scheduling.gateway';
 import Select from '@/components/Select';
 import Label from '@/components/Label';
 import HelperText from '@/components/HelperText';
 import Input from '@/components/Input';
+import FileInput from '@/components/FileInput';
 
 interface TaskSchedulingFormData {
   type: TaskSchedulingTypes;
@@ -30,6 +37,7 @@ const defaultValues: TaskSchedulingFormData = {
 };
 
 type Props = {
+  data: TaskSchedulingData;
   setData: React.Dispatch<React.SetStateAction<TaskSchedulingData>>;
   setResponse: React.Dispatch<
     React.SetStateAction<TaskSchedulingResponse | null>
@@ -40,6 +48,7 @@ type Props = {
 };
 
 export default function TaskSchedulingForm({
+  data,
   setData,
   setResponse,
   setError,
@@ -61,13 +70,56 @@ export default function TaskSchedulingForm({
   const httpClient = new AxiosHttpAdapter();
   const gateway = new TaskSchedulingHttpGateway(httpClient);
 
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').map((line) => line.trim());
+      const parsedData = parseTaskFile(lines);
+
+      // Validate the parsed data
+      const validationErrors = validateTaskData(parsedData);
+      if (validationErrors.length > 0) {
+        setError(`Erro no arquivo: ${validationErrors.join(', ')}`);
+        return;
+      }
+
+      // Update data state (without families from file)
+      const dataWithoutFamilies = { ...parsedData, families: undefined };
+      setData(dataWithoutFamilies);
+
+      // Format data for form display
+      const { tasksString, setupMatrixString } =
+        formatTaskDataForDisplay(parsedData);
+
+      // Update form values (don't override families - keep user input)
+      setValue('tasks', tasksString);
+      setValue('setupMatrix', setupMatrixString);
+
+      // Clear any previous errors
+      setError(null);
+
+      // Clear the file input
+      event.target.value = '';
+    } catch (error) {
+      setError(
+        `Erro ao processar arquivo: ${
+          error instanceof Error ? error.message : 'Erro desconhecido'
+        }`,
+      );
+    }
+  }
+
   function parseSetupMatrix(matrixStr: string): Record<string, number> {
     try {
       const lines = matrixStr.trim().split('\n');
       const setupMatrix: Record<string, number> = {};
 
       for (const line of lines) {
-        const match = line.match(/\((\d+),(\d+)\):\s*(\d+(?:\.\d+)?)/);
+        // Support both formats: "(0,1): 10" and "0,1:10"
+        const match = line.match(/\(?(\d+),(\d+)\)?:\s*(\d+(?:\.\d+)?)/);
         if (match) {
           const [, from, to, cost] = match;
           setupMatrix[`(${from},${to})`] = parseFloat(cost);
@@ -77,7 +129,7 @@ export default function TaskSchedulingForm({
       return setupMatrix;
     } catch (error) {
       throw new Error(
-        'Formato inválido para matriz de setup. Use: (origem,destino): custo',
+        'Formato inválido para matriz de setup. Use: origem,destino:custo',
       );
     }
   }
@@ -185,22 +237,22 @@ export default function TaskSchedulingForm({
     setValue('tasks', '1,2,3,4');
     setValue(
       'setupMatrix',
-      `(0,1): 10
-(0,2): 15
-(0,3): 20
-(0,4): 25
-(1,2): 5
-(1,3): 10
-(1,4): 15
-(2,1): 8
-(2,3): 6
-(2,4): 12
-(3,1): 12
-(3,2): 7
-(3,4): 4
-(4,1): 18
-(4,2): 14
-(4,3): 6`,
+      `0,1:25
+0,2:15
+0,3:20
+0,4:10
+1,2:5
+1,3:10
+1,4:15
+2,1:8
+2,3:6
+2,4:12
+3,1:12
+3,2:7
+3,4:4
+4,1:18
+4,2:14
+4,3:6`,
     );
     setValue(
       'families',
@@ -209,6 +261,19 @@ export default function TaskSchedulingForm({
 3: ProductB
 4: ProductB`,
     );
+  }
+
+  // Download example file
+  function downloadExampleFile() {
+    const blob = new Blob([TASK_FILE_EXAMPLE], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'task_scheduling_example.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -230,11 +295,33 @@ export default function TaskSchedulingForm({
           }}
         >
           <div>
+            <FileInput
+              handleFileUpload={handleFileUpload}
+              helper={
+                <div
+                  style={{ marginTop: '8px', color: '#666', fontSize: '13px' }}
+                >
+                  {data.tasks.length > 0 ? (
+                    <span>
+                      Arquivo carregado:{' '}
+                      <strong>{data.tasks.length} tarefas</strong> (
+                      {data.tasks.join(', ')})
+                    </span>
+                  ) : (
+                    <span>Formato: origem,destino:custo (ex: 0,1:25)</span>
+                  )}
+                </div>
+              }
+            />
+          </div>
+
+          <div>
             <Label>Algoritmo</Label>
             <Select
               id="type"
               {...register('type', { required: true })}
               options={taskSchedulingOptions}
+              disabled={data.tasks.length === 0}
             />
             {errors.type && <HelperText>Campo obrigatório</HelperText>}
           </div>
@@ -256,6 +343,7 @@ export default function TaskSchedulingForm({
             <Input
               id="tasks"
               placeholder="1,2,3,4"
+              disabled
               {...register('tasks', { required: true })}
             />
             {errors.tasks && <HelperText>Campo obrigatório</HelperText>}
@@ -265,7 +353,8 @@ export default function TaskSchedulingForm({
             <Label>Matriz de Setup</Label>
             <textarea
               id="setupMatrix"
-              placeholder="(0,1): 10&#10;(0,2): 15&#10;..."
+              placeholder="0,1:25&#10;0,2:15&#10;1,2:5&#10;..."
+              disabled
               {...register('setupMatrix', { required: true })}
               style={{
                 width: '100%',
@@ -302,37 +391,63 @@ export default function TaskSchedulingForm({
               </div>
             )}
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+          >
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || data.tasks.length === 0}
               style={{
-                flex: 1,
                 padding: '10px',
-                backgroundColor: loading ? '#ccc' : '#007bff',
+                backgroundColor:
+                  loading || data.tasks.length === 0 ? '#ccc' : '#007bff',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor:
+                  loading || data.tasks.length === 0
+                    ? 'not-allowed'
+                    : 'pointer',
               }}
             >
               {loading ? 'Executando...' : 'Executar'}
             </button>
 
-            <button
-              type="button"
-              onClick={loadExample}
-              style={{
-                padding: '10px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              Exemplo
-            </button>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              <button
+                type="button"
+                onClick={loadExample}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                }}
+              >
+                Exemplo
+              </button>
+
+              <button
+                type="button"
+                onClick={downloadExampleFile}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                }}
+              >
+                ↓ Arquivo
+              </button>
+            </div>
           </div>
         </div>
       </form>
