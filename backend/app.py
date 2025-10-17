@@ -192,6 +192,165 @@ def ida_star() -> Any:
         logging.error(f"Error in IDA* search: {e}")
         abort(500, description=str(e))
         
+@app.route('/scheduling/task-sequence/breadth_first', methods=['POST'])
+def task_sequence_breadth_first() -> Any:
+    """Busca em largura para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+        sequence, cost = search.breadth_first_scheduling(tasks, setup_matrix)
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'algorithm': 'Breadth First'
+        })
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in breadth first task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/depth_first', methods=['POST'])
+def task_sequence_depth_first() -> Any:
+    """Busca em profundidade para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+        sequence, cost = search.depth_first_scheduling(tasks, setup_matrix)
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'algorithm': 'Depth First'
+        })
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in depth first task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/depth_limited', methods=['POST'])
+def task_sequence_depth_limited() -> Any:
+    """Busca em profundidade limitada para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        depth_limit = data.get('depth_limit', 5)
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+        sequence, cost = search.depth_limited_scheduling(tasks, setup_matrix, depth_limit)
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'algorithm': 'Depth Limited'
+        })
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in depth limited task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/iterative_deepening', methods=['POST'])
+def task_sequence_iterative_deepening() -> Any:
+    """Busca em profundidade iterativa para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+        sequence, cost = search.iterative_deepening_scheduling(tasks, setup_matrix)
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'algorithm': 'Iterative Deepening'
+        })
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in iterative deepening task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/bidirectional', methods=['POST'])
+def task_sequence_bidirectional() -> Any:
+    """Busca bidirecional para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+        sequence, cost = search.bidirectional_scheduling(tasks, setup_matrix)
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'algorithm': 'Bidirectional'
+        })
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in bidirectional task scheduling: {e}")
+        abort(500, description=str(e))
+
+@app.route('/scheduling/task-sequence/uniform_cost', methods=['POST'])
+def task_sequence_uniform_cost() -> Any:
+    """Custo uniforme para sequenciamento de tarefas"""
+    data = get_json_data()
+    try:
+        search = TaskSchedulingSearch()
+
+        tasks = data['tasks']
+        setup_costs = data['setup_matrix']
+
+        setup_matrix = SetupMatrix(tasks, setup_costs)
+        if not setup_matrix.validate_matrix():
+            abort(400, description="Matriz de setup incompleta")
+
+        sequence, cost = search.uniform_cost_scheduling(tasks, setup_matrix)
+
+        setup_details = []
+        if sequence:
+            prev = 0
+            for task in sequence:
+                setup_cost = setup_matrix.get_setup_cost(prev, task)
+                setup_details.append({"from": prev, "to": task, "cost": setup_cost})
+                prev = task
+
+        return jsonify({
+            'sequence': sequence,
+            'total_cost': cost,
+            'setup_details': setup_details,
+            'algorithm': 'Uniform Cost'
+        })
+
+    except KeyError as e:
+        logging.error(f"Missing key: {e}")
+        abort(400, description=f"Missing key: {e}")
+    except Exception as e:
+        logging.error(f"Error in uniform cost task scheduling: {e}")
+        abort(500, description=str(e))
+
 @app.route('/scheduling/task-sequence/a_star', methods=['POST'])
 def task_sequence_a_star() -> Any:
     """A* para sequenciamento de tarefas com setups"""
@@ -284,21 +443,25 @@ def task_sequence_greedy() -> Any:
         logging.error(f"Error in greedy task scheduling: {e}")
         abort(500, description=str(e))
 
-@app.route('/scheduling/task-sequence/uniform_cost', methods=['POST'])
-def task_sequence_uniform_cost() -> Any:
-    """Custo uniforme para sequenciamento de tarefas"""
+@app.route('/scheduling/task-sequence/ida_star', methods=['POST'])
+def task_sequence_ida_star() -> Any:
+    """IDA* para sequenciamento de tarefas com setups"""
     data = get_json_data()
     try:
         search = TaskSchedulingSearch()
 
         tasks = data['tasks']
         setup_costs = data['setup_matrix']
+        heuristic = data.get('heuristic', 'h1')
+        family_data = data.get('families')
 
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
             abort(400, description="Matriz de setup incompleta")
 
-        sequence, cost = search.uniform_cost_scheduling(tasks, setup_matrix)
+        families = TaskFamily(family_data) if family_data else None
+
+        sequence, cost = search.ida_star_scheduling(tasks, setup_matrix, heuristic, families)
 
         setup_details = []
         if sequence:
@@ -312,14 +475,15 @@ def task_sequence_uniform_cost() -> Any:
             'sequence': sequence,
             'total_cost': cost,
             'setup_details': setup_details,
-            'algorithm': 'Uniform Cost'
+            'algorithm': 'IDA*',
+            'heuristic': heuristic
         })
 
     except KeyError as e:
         logging.error(f"Missing key: {e}")
         abort(400, description=f"Missing key: {e}")
     except Exception as e:
-        logging.error(f"Error in uniform cost task scheduling: {e}")
+        logging.error(f"Error in IDA* task scheduling: {e}")
         abort(500, description=str(e))
 
 @app.errorhandler(404)
