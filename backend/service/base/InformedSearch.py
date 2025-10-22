@@ -1,18 +1,24 @@
 from collections import deque
 from .NodeP import NodeP
-from math import sqrt
-
+import logging
 
 class InformedSearch(object):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
     # -------------------------------------------------------------------------
     # SUCCESSORS FOR GRAPH
     # -------------------------------------------------------------------------
     def graph_successors(self, index, graph, step=1):
-        """Return successors for node at index in graph.
-
-        graph is expected to be an adjacency list where graph[index] is an
-        iterable of (neighbor, cost) tuples. step controls slicing direction in
-        case the original data was reversed.
+        """
+        Return successors for node at index in graph. The graph is expected to
+        be an adjacency list where graph[index] is an iterable of (neighbor, cost)
+        tuples. step controls slicing direction in case the original data was reversed.
         """
         return [s for s in graph[index][::step]]
 
@@ -20,7 +26,9 @@ class InformedSearch(object):
     # INSERT IN LIST KEEPING IT ORDERED
     # -------------------------------------------------------------------------
     def insert_ordered(self, list_nodes, node):
-        """Insert node into list_nodes keeping it ordered by node.v1 (priority)."""
+        """
+        Insert node into list_nodes keeping it ordered by node.v1 (priority).
+        """
         for i, n in enumerate(list_nodes):
             if node.v1 < n.v1:
                 list_nodes.insert(i, node)
@@ -32,6 +40,9 @@ class InformedSearch(object):
     # DISPLAY THE PATH FOUND IN THE SEARCH TREE
     # -------------------------------------------------------------------------
     def display_path(self, node):
+        """
+        Reconstruct the path from the start node to the given node.
+        """
         path = []
         while node is not None:
             path.append(node.state)
@@ -43,6 +54,9 @@ class InformedSearch(object):
     # GRAPH HEURISTIC (precomputed table)
     # -------------------------------------------------------------------------
     def graph_heuristic(self, nodes, destination, n):
+        """
+        Return the heuristic cost from node n to the destination.
+        """
         i_destination = nodes.index(destination)
         i_n = nodes.index(n)
         h = [
@@ -72,7 +86,9 @@ class InformedSearch(object):
     # UNIFORM COST
     # -------------------------------------------------------------------------
     def uniform_cost(self, start, goal, nodes, graph):
-        """Uniform-cost search (Dijkstra-like) where NodeP.v2 stores the g-cost."""
+        """
+        Uniform-cost search (Dijkstra-like) where NodeP.v2 stores the g-cost.
+        """
         if start == goal:
             return [start]
 
@@ -106,6 +122,9 @@ class InformedSearch(object):
     # GREEDY BEST-FIRST SEARCH
     # -------------------------------------------------------------------------
     def greedy(self, start, goal, nodes, graph):
+        """
+        Greedy best-first search (GBFS) where the priority is given by the heuristic.
+        """
         if start == goal:
             return [start]
 
@@ -139,6 +158,9 @@ class InformedSearch(object):
     # A* SEARCH
     # -------------------------------------------------------------------------
     def a_star(self, start, goal, nodes, graph):
+        """
+        A* search where NodeP.v1 = g + h and NodeP.v2 = g.
+        """
         if start == goal:
             return [start]
 
@@ -172,6 +194,10 @@ class InformedSearch(object):
     # IDA* (iterative deepening A*)
     # -------------------------------------------------------------------------
     def ida_star(self, start, goal, nodes, graph):
+        """
+        Iterative Deepening A* (IDA*) search where the depth limit is increased
+        until a solution is found.
+        """
         if start == goal:
             return [start]
 

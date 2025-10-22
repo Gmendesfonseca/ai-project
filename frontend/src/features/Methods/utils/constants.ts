@@ -11,15 +11,9 @@ export const SearchTypes = {
 } as const;
 export type SearchTypes = (typeof SearchTypes)[keyof typeof SearchTypes];
 
-export const TaskSchedulingTypes = {
-  TASK_A_STAR: 'TASK_A_STAR',
-  TASK_GREEDY: 'TASK_GREEDY',
-  TASK_UNIFORM_COST: 'TASK_UNIFORM_COST',
-} as const;
-export type TaskSchedulingTypes =
-  (typeof TaskSchedulingTypes)[keyof typeof TaskSchedulingTypes];
+export type Options = { value: SearchTypes; label: string };
 
-export const methodOptions: { value: SearchTypes; label: string }[] = [
+export const methodOptions: Options[] = [
   {
     value: SearchTypes.BREADTH,
     label: 'Amplitude',
@@ -58,21 +52,42 @@ export const methodOptions: { value: SearchTypes; label: string }[] = [
   },
 ];
 
-export const taskSchedulingOptions: {
-  value: TaskSchedulingTypes;
-  label: string;
-}[] = [
+export const taskSchedulingOptions: Options[] = [
   {
-    value: TaskSchedulingTypes.TASK_A_STAR,
-    label: 'A* - Task Scheduling',
+    value: SearchTypes.A_STAR,
+    label: 'A* (Ótimo com heurística)',
   },
   {
-    value: TaskSchedulingTypes.TASK_GREEDY,
-    label: 'Greedy - Task Scheduling',
+    value: SearchTypes.GREEDY,
+    label: 'Busca Gulosa (Rápido)',
   },
   {
-    value: TaskSchedulingTypes.TASK_UNIFORM_COST,
-    label: 'Custo Uniforme - Task Scheduling',
+    value: SearchTypes.IDA_STAR,
+    label: 'IDA* (A* com memória limitada)',
+  },
+  {
+    value: SearchTypes.UNIFORMED_COST,
+    label: 'Custo Uniforme (Dijkstra)',
+  },
+  {
+    value: SearchTypes.BREADTH,
+    label: 'Busca em Largura (BFS)',
+  },
+  {
+    value: SearchTypes.DEPTH,
+    label: 'Busca em Profundidade (DFS)',
+  },
+  {
+    value: SearchTypes.DEPTH_LIMITED,
+    label: 'Profundidade Limitada',
+  },
+  {
+    value: SearchTypes.ITERATIVE,
+    label: 'Aprofundamento Iterativo',
+  },
+  {
+    value: SearchTypes.BIDIRECTIONAL,
+    label: 'Busca Bidirecional',
   },
 ];
 

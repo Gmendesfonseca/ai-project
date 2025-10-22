@@ -25,8 +25,9 @@ export function Router() {
   }
 
   const router = createBrowserRouter([
-    { path: '/', element: <MainPage /> },
-    { path: '/task-scheduling', element: <TaskSchedulePage /> },
+    { path: '/', element: <TaskSchedulePage /> },
+    { path: '/base', element: <MainPage /> },
+    { path: '*', element: <TaskSchedulePage /> },
   ]);
 
   return (

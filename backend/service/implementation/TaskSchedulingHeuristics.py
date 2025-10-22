@@ -10,6 +10,10 @@ class TaskSchedulingHeuristics:
       """
       Implementa heurística H1: soma dos menores custos de saída
       para cada tarefa restante, menos o maior (uma tarefa não terá saída)
+      
+      :param node: Nó atual com tarefas restantes
+      :param setup_matrix: Matriz de custos de setup
+      :return: Custo estimado baseado em menores custos de saída
       """
       if node.remaining_bitmask == 0:
           return 0.0
@@ -43,6 +47,10 @@ class TaskSchedulingHeuristics:
     def h2_mst_symmetric(node: TaskSchedulingNode, setup_matrix: SetupMatrix) -> float:
       """
       Para casos onde s_ij ≈ s_ji, usa árvore geradora mínima
+      
+      :param node: Nó atual com tarefas restantes
+      :param setup_matrix: Matriz de custos de setup
+      :return: Custo estimado baseado em MST
       """
       if node.remaining_bitmask == 0:
           return 0.0
@@ -92,7 +100,13 @@ class TaskSchedulingHeuristics:
 
     @staticmethod
     def _compute_mst(tasks: List[int], setup_matrix: SetupMatrix) -> float:
-        """Computa MST usando algoritmo de Prim adaptado"""
+        """
+        Computa MST usando algoritmo de Prim adaptado
+        
+        :param tasks: Lista de IDs de tarefas
+        :param setup_matrix: Instância de SetupMatrix com os custos de setup
+        :return: Custo total da MST
+        """
         if len(tasks) <= 1:
             return 0.0
 

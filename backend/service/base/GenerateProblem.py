@@ -1,4 +1,4 @@
-from backend.service.UninformedSearch import UninformedSearch
+from backend.service.base.UninformedSearch import UninformedSearch
 import numpy as np  
 import random as rd
 

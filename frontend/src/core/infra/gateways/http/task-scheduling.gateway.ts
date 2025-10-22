@@ -38,4 +38,58 @@ export class TaskSchedulingHttpGateway implements TaskSchedulingGateway {
     });
     return response.data;
   }
+
+  async breadthFirst(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/breadth_first`,
+    });
+    return response.data;
+  }
+
+  async depthFirst(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/depth_first`,
+    });
+    return response.data;
+  }
+
+  async depthLimited(payload: TaskSchedulingInput): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/depth_limited`,
+    });
+    return response.data;
+  }
+
+  async iterativeDeepening(payload: TaskSchedulingInput): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/iterative_deepening`,
+    });
+    return response.data;
+  }
+
+  async bidirectional(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/bidirectional`,
+    });
+    return response.data;
+  }
+
+  async idaStar(payload: TaskSchedulingInput): TaskSchedulingOutput {
+    const response = await this.httpClient.post<TaskSchedulingOutput>({
+      payload,
+      url: `${this.baseUrl}/ida_star`,
+    });
+    return response.data;
+  }
 }

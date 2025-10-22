@@ -3,6 +3,8 @@ export interface TaskSchedulingInput {
   setup_matrix: Record<string, number>;
   heuristic?: string;
   families?: Record<number, string>;
+  depth_limit?: number;
+  max_depth?: number;
 }
 
 export interface TaskSchedulingResponse {
@@ -13,7 +15,6 @@ export interface TaskSchedulingResponse {
     to: number;
     cost: number;
   }>;
-  algorithm: string;
   heuristic?: string;
 }
 
@@ -25,4 +26,16 @@ export interface TaskSchedulingGateway {
   uniformCost(
     payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
   ): TaskSchedulingOutput;
+  breadthFirst(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput;
+  depthFirst(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput;
+  depthLimited(payload: TaskSchedulingInput): TaskSchedulingOutput;
+  iterativeDeepening(payload: TaskSchedulingInput): TaskSchedulingOutput;
+  bidirectional(
+    payload: Omit<TaskSchedulingInput, 'heuristic' | 'families'>,
+  ): TaskSchedulingOutput;
+  idaStar(payload: TaskSchedulingInput): TaskSchedulingOutput;
 }

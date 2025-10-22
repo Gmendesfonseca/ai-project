@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import {
-  taskSchedulingOptions,
-  TaskSchedulingTypes,
+  SearchTypes,
   heuristicOptions,
+  taskSchedulingOptions,
 } from '../../Methods/utils/constants';
 import { AxiosHttpAdapter } from '@core/infra/http/axios.adapter';
 import { TaskSchedulingHttpGateway } from '@core/infra/gateways/http/task-scheduling.gateway';
@@ -21,19 +21,23 @@ import Input from '@/components/Input';
 import FileInput from '@/components/FileInput';
 
 interface TaskSchedulingFormData {
-  type: TaskSchedulingTypes;
+  type: SearchTypes;
   tasks: string;
   setupMatrix: string;
   heuristic: string;
   families?: string;
+  depthLimit?: number;
+  maxDepth?: number;
 }
 
 const defaultValues: TaskSchedulingFormData = {
-  type: TaskSchedulingTypes.TASK_A_STAR,
+  type: SearchTypes.A_STAR,
   tasks: '',
   setupMatrix: '',
   heuristic: 'h1',
   families: '',
+  depthLimit: 5,
+  maxDepth: 10,
 };
 
 type Props = {
@@ -66,9 +70,6 @@ export default function TaskSchedulingForm({
   });
 
   const watchType = watch('type');
-
-  const httpClient = new AxiosHttpAdapter();
-  const gateway = new TaskSchedulingHttpGateway(httpClient);
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -140,6 +141,9 @@ export default function TaskSchedulingForm({
       setResponse(null);
 
       try {
+        const httpClient = new AxiosHttpAdapter();
+        const gateway = new TaskSchedulingHttpGateway(httpClient);
+
         // Parse tasks
         const tasks = formData.tasks
           .split(',')
@@ -176,29 +180,63 @@ export default function TaskSchedulingForm({
         };
         setData(taskData);
 
-        // Prepare request payload
-        const payload = {
+        const basePayload = {
           tasks,
           setup_matrix: setupMatrix,
-          heuristic: formData.heuristic,
-          families: finalFamilies,
         };
 
+        const fullPayload = {
+          ...basePayload,
+          heuristic: formData.heuristic,
+          families: finalFamilies,
+          depth_limit: formData.depthLimit,
+          max_depth: formData.maxDepth,
+        };
+
+        const algorithmPayloads = {
+          [SearchTypes.A_STAR]: fullPayload,
+          [SearchTypes.GREEDY]: fullPayload,
+          [SearchTypes.IDA_STAR]: fullPayload,
+          [SearchTypes.DEPTH_LIMITED]: fullPayload,
+          [SearchTypes.ITERATIVE]: fullPayload,
+          [SearchTypes.UNIFORMED_COST]: basePayload,
+          [SearchTypes.BREADTH]: basePayload,
+          [SearchTypes.DEPTH]: basePayload,
+          [SearchTypes.BIDIRECTIONAL]: basePayload,
+        };
+
+        const payload = algorithmPayloads[formData.type] || basePayload;
+
+        // Call the appropriate algorithm method
         let result: TaskSchedulingResponse | null = null;
 
-        // Call appropriate algorithm
         switch (formData.type) {
-          case TaskSchedulingTypes.TASK_A_STAR:
+          case SearchTypes.A_STAR:
             result = await gateway.aStar(payload);
             break;
-          case TaskSchedulingTypes.TASK_GREEDY:
+          case SearchTypes.GREEDY:
             result = await gateway.greedy(payload);
             break;
-          case TaskSchedulingTypes.TASK_UNIFORM_COST:
-            result = await gateway.uniformCost({
-              tasks: payload.tasks,
-              setup_matrix: payload.setup_matrix,
-            });
+          case SearchTypes.UNIFORMED_COST:
+            result = await gateway.uniformCost(payload);
+            break;
+          case SearchTypes.BREADTH:
+            result = await gateway.breadthFirst(payload);
+            break;
+          case SearchTypes.DEPTH:
+            result = await gateway.depthFirst(payload);
+            break;
+          case SearchTypes.DEPTH_LIMITED:
+            result = await gateway.depthLimited(payload);
+            break;
+          case SearchTypes.ITERATIVE:
+            result = await gateway.iterativeDeepening(payload);
+            break;
+          case SearchTypes.BIDIRECTIONAL:
+            result = await gateway.bidirectional(payload);
+            break;
+          case SearchTypes.IDA_STAR:
+            result = await gateway.idaStar(payload);
             break;
           default:
             throw new Error('Algoritmo não implementado');
@@ -241,6 +279,8 @@ export default function TaskSchedulingForm({
 4,2:14
 4,3:6`,
     );
+    setValue('depthLimit', 5);
+    setValue('maxDepth', 10);
     setValue(
       'families',
       `1: ProductA
@@ -313,8 +353,8 @@ export default function TaskSchedulingForm({
             {errors.type && <HelperText>Campo obrigatório</HelperText>}
           </div>
 
-          {(watchType === TaskSchedulingTypes.TASK_A_STAR ||
-            watchType === TaskSchedulingTypes.TASK_GREEDY) && (
+          {(watchType === SearchTypes.A_STAR ||
+            watchType === SearchTypes.GREEDY) && (
             <div>
               <Label>Heurística</Label>
               <Select
@@ -322,6 +362,47 @@ export default function TaskSchedulingForm({
                 {...register('heuristic')}
                 options={heuristicOptions}
               />
+            </div>
+          )}
+
+          {watchType === SearchTypes.DEPTH_LIMITED && (
+            <div>
+              <Label>Limite de Profundidade</Label>
+              <Input
+                id="depthLimit"
+                type="number"
+                min="1"
+                placeholder="5"
+                {...register('depthLimit', {
+                  required: 'Limite de profundidade é obrigatório',
+                  min: { value: 1, message: 'Limite deve ser maior que 0' },
+                })}
+              />
+              {errors.depthLimit && (
+                <HelperText>{errors.depthLimit.message}</HelperText>
+              )}
+            </div>
+          )}
+
+          {watchType === SearchTypes.ITERATIVE && (
+            <div>
+              <Label>Profundidade Máxima</Label>
+              <Input
+                id="maxDepth"
+                type="number"
+                min="1"
+                placeholder="10"
+                {...register('maxDepth', {
+                  required: 'Profundidade máxima é obrigatória',
+                  min: {
+                    value: 1,
+                    message: 'Profundidade deve ser maior que 0',
+                  },
+                })}
+              />
+              {errors.maxDepth && (
+                <HelperText>{errors.maxDepth.message}</HelperText>
+              )}
             </div>
           )}
 
@@ -356,8 +437,8 @@ export default function TaskSchedulingForm({
             {errors.setupMatrix && <HelperText>Campo obrigatório</HelperText>}
           </div>
 
-          {(watchType === TaskSchedulingTypes.TASK_A_STAR ||
-            watchType === TaskSchedulingTypes.TASK_GREEDY) &&
+          {(watchType === SearchTypes.A_STAR ||
+            watchType === SearchTypes.GREEDY) &&
             watch('heuristic') === 'h3' && (
               <div>
                 <Label>Famílias de Produtos (opcional)</Label>

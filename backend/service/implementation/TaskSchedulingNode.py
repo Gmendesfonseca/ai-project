@@ -9,7 +9,8 @@ class TaskSchedulingNode(NodeP):
       :param last_task: Última tarefa agendada
       :param g_cost: Custo acumulado até este nó
       :param h_cost: Custo heurístico estimado até o objetivo
-      :param parent: Nó pai (padrão: None)"""
+      :param parent: Nó pai (padrão: None)
+      """
       # v1 = f_cost (para ordenação na priority queue)
       # v2 = g_cost (custo acumulado)
       super().__init__(parent, state=(remaining_bitmask, last_task), v1=(g_cost + h_cost), previous=None, next_node=None, v2=g_cost)
@@ -17,6 +18,7 @@ class TaskSchedulingNode(NodeP):
       self.last_task = last_task
       self.h_cost = h_cost
       self.sequence = []  # Será populada durante reconstrução do caminho
+      self.depth = 0  # Para controle de profundidade nas buscas
 
     def is_goal_state(self) -> bool:
       """

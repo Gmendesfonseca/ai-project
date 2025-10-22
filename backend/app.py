@@ -13,6 +13,8 @@ CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 
+INCORRECT_MATRIX_MSG = "Matriz de setup incompleta"
+
 @app.route('/', methods=['GET'])
 def index() -> str:
     """Health check endpoint."""
@@ -202,12 +204,11 @@ def task_sequence_breadth_first() -> Any:
         setup_costs = data['setup_matrix']
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
         sequence, cost = search.breadth_first_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
             'total_cost': cost,
-            'algorithm': 'Breadth First'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -226,12 +227,11 @@ def task_sequence_depth_first() -> Any:
         setup_costs = data['setup_matrix']
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
         sequence, cost = search.depth_first_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
             'total_cost': cost,
-            'algorithm': 'Depth First'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -251,12 +251,11 @@ def task_sequence_depth_limited() -> Any:
         depth_limit = data.get('depth_limit', 5)
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
         sequence, cost = search.depth_limited_scheduling(tasks, setup_matrix, depth_limit)
         return jsonify({
             'sequence': sequence,
             'total_cost': cost,
-            'algorithm': 'Depth Limited'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -275,12 +274,11 @@ def task_sequence_iterative_deepening() -> Any:
         setup_costs = data['setup_matrix']
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
         sequence, cost = search.iterative_deepening_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
             'total_cost': cost,
-            'algorithm': 'Iterative Deepening'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -299,12 +297,11 @@ def task_sequence_bidirectional() -> Any:
         setup_costs = data['setup_matrix']
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
         sequence, cost = search.bidirectional_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
             'total_cost': cost,
-            'algorithm': 'Bidirectional'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -325,7 +322,7 @@ def task_sequence_uniform_cost() -> Any:
 
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
 
         sequence, cost = search.uniform_cost_scheduling(tasks, setup_matrix)
 
@@ -341,7 +338,6 @@ def task_sequence_uniform_cost() -> Any:
             'sequence': sequence,
             'total_cost': cost,
             'setup_details': setup_details,
-            'algorithm': 'Uniform Cost'
         })
 
     except KeyError as e:
@@ -366,7 +362,7 @@ def task_sequence_a_star() -> Any:
         # Criar estruturas de dados
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
 
         families = TaskFamily(family_data) if family_data else None
 
@@ -390,7 +386,6 @@ def task_sequence_a_star() -> Any:
             'sequence': sequence,
             'total_cost': cost,
             'setup_details': setup_details,
-            'algorithm': 'A*',
             'heuristic': heuristic
         })
 
@@ -415,7 +410,7 @@ def task_sequence_greedy() -> Any:
 
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
 
         families = TaskFamily(family_data) if family_data else None
         sequence, cost = search.greedy_scheduling(tasks, setup_matrix, heuristic, families)
@@ -432,7 +427,6 @@ def task_sequence_greedy() -> Any:
             'sequence': sequence,
             'total_cost': cost,
             'setup_details': setup_details,
-            'algorithm': 'Greedy',
             'heuristic': heuristic
         })
 
@@ -457,7 +451,7 @@ def task_sequence_ida_star() -> Any:
 
         setup_matrix = SetupMatrix(tasks, setup_costs)
         if not setup_matrix.validate_matrix():
-            abort(400, description="Matriz de setup incompleta")
+            abort(400, description=INCORRECT_MATRIX_MSG)
 
         families = TaskFamily(family_data) if family_data else None
 
@@ -475,7 +469,6 @@ def task_sequence_ida_star() -> Any:
             'sequence': sequence,
             'total_cost': cost,
             'setup_details': setup_details,
-            'algorithm': 'IDA*',
             'heuristic': heuristic
         })
 

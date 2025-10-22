@@ -85,7 +85,6 @@ class UninformedSearch(object):
         
         :return: A list representing the path from start to goal, or None if no path is found.
         """
-        print("nodes, graph:", nodes, graph)
         self.logger.info(f"Starting breadth-first search from {start} to {goal}")
         # Finish if start equals goal
         if start == goal:
