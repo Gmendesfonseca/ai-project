@@ -27,7 +27,7 @@ class TaskSchedulingSearch(InformedSearch):
         Busca em largura para sequenciamento
         """
         
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
 
         # Fila para busca em largura
         queue = deque([start_node])
@@ -62,7 +62,7 @@ class TaskSchedulingSearch(InformedSearch):
         """
         Busca em profundidade para sequenciamento
         """
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
         start_node.depth = 0
         
         # Pilha para busca em profundidade
@@ -104,7 +104,7 @@ class TaskSchedulingSearch(InformedSearch):
         :param depth_limit: Limite máximo de profundidade
         :return: (sequencia_otima, custo_total) ou ([], inf) se não encontrar solução
         """
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
         start_node.depth = 0
         
         # Pilha para busca em profundidade
@@ -195,7 +195,7 @@ class TaskSchedulingSearch(InformedSearch):
     # -------------------------------------------------------------------------
     def uniform_cost_scheduling(self, tasks: List[int], setup_matrix: SetupMatrix) -> Tuple[List[int], float]:
         """Custo uniforme (Dijkstra) para sequenciamento"""
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
         start_node.v1 = 0.0  # Ordena por g-cost apenas
 
         open_list = [start_node]
@@ -236,7 +236,7 @@ class TaskSchedulingSearch(InformedSearch):
         :return: (sequencia_otima, custo_total) ou ([], inf) se não encontrar solução
         """
         # Similar ao A* mas ordena apenas por h-cost
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
         start_node.h_cost = self._calculate_heuristic(start_node, setup_matrix,
                                                      heuristic_type, families)
         start_node.v1 = start_node.h_cost  # f = h apenas (greedy)
@@ -331,7 +331,7 @@ class TaskSchedulingSearch(InformedSearch):
         :param families: Para heurística h3
         """
         # Estado inicial
-        start_node = self._get_initial_state(tasks)
+        start_node, _ = self._get_initial_state(tasks)
         start_node.h_cost = self._calculate_heuristic(start_node, setup_matrix,
                                                      heuristic_type, families)
         

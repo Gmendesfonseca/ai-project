@@ -14,6 +14,7 @@ export interface TaskSchedulingData {
 const defaultData: TaskSchedulingData = {
   tasks: [],
   setupMatrix: {},
+  families: {},
 };
 
 export default function TaskSchedulePage() {

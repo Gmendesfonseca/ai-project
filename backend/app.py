@@ -15,6 +15,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 INCORRECT_MATRIX_MSG = "Matriz de setup incompleta"
 
+def safe_json_cost(cost: float) -> Any:
+    """Convert infinity to a JSON-safe value."""
+    return None if cost == float('inf') else cost
+
 @app.route('/', methods=['GET'])
 def index() -> str:
     """Health check endpoint."""
@@ -208,7 +212,7 @@ def task_sequence_breadth_first() -> Any:
         sequence, cost = search.breadth_first_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -231,7 +235,8 @@ def task_sequence_depth_first() -> Any:
         sequence, cost = search.depth_first_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
+            'algorithm': 'DEPTH'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -255,7 +260,8 @@ def task_sequence_depth_limited() -> Any:
         sequence, cost = search.depth_limited_scheduling(tasks, setup_matrix, depth_limit)
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
+            'algorithm': 'DEPTH_LIMITED'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -278,7 +284,8 @@ def task_sequence_iterative_deepening() -> Any:
         sequence, cost = search.iterative_deepening_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
+            'algorithm': 'ITERATIVE'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -301,7 +308,8 @@ def task_sequence_bidirectional() -> Any:
         sequence, cost = search.bidirectional_scheduling(tasks, setup_matrix)
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
+            'algorithm': 'BIDIRECTIONAL'
         })
     except KeyError as e:
         logging.error(f"Missing key: {e}")
@@ -336,8 +344,9 @@ def task_sequence_uniform_cost() -> Any:
 
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
             'setup_details': setup_details,
+            'algorithm': 'UNIFORMED_COST'
         })
 
     except KeyError as e:
@@ -384,9 +393,10 @@ def task_sequence_a_star() -> Any:
 
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
             'setup_details': setup_details,
-            'heuristic': heuristic
+            'heuristic': heuristic,
+            'algorithm': 'A_STAR'
         })
 
     except KeyError as e:
@@ -425,9 +435,10 @@ def task_sequence_greedy() -> Any:
 
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
             'setup_details': setup_details,
-            'heuristic': heuristic
+            'heuristic': heuristic,
+            'algorithm': 'GREEDY'
         })
 
     except KeyError as e:
@@ -467,9 +478,10 @@ def task_sequence_ida_star() -> Any:
 
         return jsonify({
             'sequence': sequence,
-            'total_cost': cost,
+            'total_cost': safe_json_cost(cost),
             'setup_details': setup_details,
-            'heuristic': heuristic
+            'heuristic': heuristic,
+            'algorithm': 'IDA_STAR'
         })
 
     except KeyError as e:

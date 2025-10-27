@@ -1,6 +1,7 @@
 import type { TaskSchedulingResponse } from '@core/domain/gateway/task-scheduling.gateway';
 import type { TaskSchedulingData } from '..';
 import GraphVis, { type GraphOptions } from '@/lib/react-graph-vis';
+import { taskSchedulingOptions } from '@/features/Methods/utils/constants';
 
 interface Props {
   response: TaskSchedulingResponse | null;
@@ -196,6 +197,13 @@ export default function TaskSequenceVisualization({
     );
   }
 
+  const { sequence, setup_details, total_cost, heuristic, algorithm } =
+    response;
+
+  const algorithmLabel =
+    taskSchedulingOptions.find((option) => option.value === algorithm)?.label ||
+    algorithm;
+
   return (
     <div
       style={{
@@ -207,8 +215,8 @@ export default function TaskSequenceVisualization({
       }}
     >
       <h3 style={{ color: '#155724', marginBottom: '20px' }}>
-        Resultado - {response.algorithm}
-        {response.heuristic && ` (${response.heuristic.toUpperCase()})`}
+        Resultado - {algorithmLabel}
+        {heuristic && ` (${heuristic.toUpperCase()})`}
       </h3>
 
       {/* Graph Visualization */}
@@ -226,10 +234,10 @@ export default function TaskSequenceVisualization({
           }}
         >
           <GraphVis
-            key={`task-graph-${response.sequence.join('-')}`}
+            key={`task-graph-${sequence.join('-')}`}
             graph={createTaskSequenceGraph(
               data.tasks,
-              response.sequence,
+              sequence,
               data.setupMatrix,
             )}
             options={taskGraphOptions}
@@ -251,38 +259,46 @@ export default function TaskSequenceVisualization({
             flexWrap: 'wrap',
           }}
         >
-          <div
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-            }}
-          >
-            START
-          </div>
-          {response.sequence.map((task, index) => (
-            <div
-              key={index}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-            >
-              <div style={{ fontSize: '18px', color: '#155724' }}>→</div>
+          {sequence.length > 0 ? (
+            <>
               <div
                 style={{
                   padding: '8px 12px',
-                  backgroundColor: '#28a745',
+                  backgroundColor: '#007bff',
                   color: 'white',
                   borderRadius: '20px',
                   fontSize: '14px',
                   fontWeight: 'bold',
                 }}
               >
-                Tarefa {task}
+                START
               </div>
-            </div>
-          ))}
+              {sequence.map((task, index) => (
+                <div
+                  key={index}
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+                >
+                  <div style={{ fontSize: '18px', color: '#155724' }}>→</div>
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      borderRadius: '20px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Tarefa {task}
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <span style={{ color: '#721c24', fontStyle: 'italic' }}>
+              Nenhuma tarefa na sequência
+            </span>
+          )}
         </div>
       </div>
 
@@ -301,12 +317,14 @@ export default function TaskSequenceVisualization({
             color: '#155724',
           }}
         >
-          {response.total_cost.toFixed(2)}
+          {total_cost
+            ? total_cost.toFixed(2)
+            : 'Não foi possível calcular o custo total'}
         </div>
       </div>
 
       {/* Setup Details */}
-      {response.setup_details && response.setup_details.length > 0 && (
+      {setup_details && setup_details.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ color: '#155724', marginBottom: '10px' }}>
             Detalhes dos Setups:
@@ -352,7 +370,7 @@ export default function TaskSequenceVisualization({
                 </tr>
               </thead>
               <tbody>
-                {response.setup_details.map((detail, index) => (
+                {setup_details.map((detail, index) => (
                   <tr key={index}>
                     <td
                       style={{

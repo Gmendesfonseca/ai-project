@@ -16,6 +16,7 @@ export interface TaskSchedulingResponse {
     cost: number;
   }>;
   heuristic?: string;
+  algorithm: string;
 }
 
 export type TaskSchedulingOutput = Promise<TaskSchedulingResponse | null>;
