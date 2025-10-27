@@ -189,20 +189,20 @@ export default function TaskSchedulingForm({
           ...basePayload,
           heuristic: formData.heuristic,
           families: finalFamilies,
-          depth_limit: formData.depthLimit,
-          max_depth: formData.maxDepth,
+          depth_limit: Number(formData.depthLimit),
+          max_depth: Number(formData.maxDepth),
         };
 
         const algorithmPayloads = {
+          [SearchTypes.DEPTH]: basePayload,
+          [SearchTypes.BREADTH]: basePayload,
+          [SearchTypes.BIDIRECTIONAL]: basePayload,
+          [SearchTypes.UNIFORMED_COST]: basePayload,
           [SearchTypes.A_STAR]: fullPayload,
           [SearchTypes.GREEDY]: fullPayload,
           [SearchTypes.IDA_STAR]: fullPayload,
-          [SearchTypes.DEPTH_LIMITED]: fullPayload,
           [SearchTypes.ITERATIVE]: fullPayload,
-          [SearchTypes.UNIFORMED_COST]: basePayload,
-          [SearchTypes.BREADTH]: basePayload,
-          [SearchTypes.DEPTH]: basePayload,
-          [SearchTypes.BIDIRECTIONAL]: basePayload,
+          [SearchTypes.DEPTH_LIMITED]: fullPayload,
         };
 
         const payload = algorithmPayloads[formData.type] || basePayload;
