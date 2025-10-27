@@ -1,9 +1,15 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from 'react-router-dom';
 import MainPage from './features/Methods';
 import TaskSchedulePage from './features/TaskSchedule';
+import AboutPage from './features/About';
+import { Layout } from './components/Layout';
 import LoadingComponent from './components/Loading';
 
 export function ClientCounter() {
@@ -25,9 +31,34 @@ export function Router() {
   }
 
   const router = createBrowserRouter([
-    { path: '/', element: <TaskSchedulePage /> },
-    { path: '/base', element: <MainPage /> },
-    { path: '*', element: <TaskSchedulePage /> },
+    {
+      path: '/',
+      element: (
+        <Layout>
+          <TaskSchedulePage />
+        </Layout>
+      ),
+    },
+    {
+      path: '/base',
+      element: (
+        <Layout>
+          <MainPage />
+        </Layout>
+      ),
+    },
+    {
+      path: '/about',
+      element: (
+        <Layout>
+          <AboutPage />
+        </Layout>
+      ),
+    },
+    {
+      path: '*',
+      element: <Navigate to="/" replace />,
+    },
   ]);
 
   return (

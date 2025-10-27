@@ -1,6 +1,6 @@
 export function PageTitle({ children }: React.PropsWithChildren) {
   return (
-    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+    <div style={{ textAlign: 'center', marginTop: '20px' }}>
       <h1>{children}</h1>
     </div>
   );
