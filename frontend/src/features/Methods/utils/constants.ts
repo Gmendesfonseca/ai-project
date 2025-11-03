@@ -55,15 +55,15 @@ export const methodOptions: Options[] = [
 export const taskSchedulingOptions: Options[] = [
   {
     value: SearchTypes.A_STAR,
-    label: 'A* (Ótimo com heurística)',
+    label: 'A*',
   },
   {
     value: SearchTypes.GREEDY,
-    label: 'Busca Gulosa (Rápido)',
+    label: 'Greedy',
   },
   {
     value: SearchTypes.IDA_STAR,
-    label: 'IDA* (A* com memória limitada)',
+    label: 'AIA* (A* com memória limitada)',
   },
   {
     value: SearchTypes.UNIFORMED_COST,
@@ -71,11 +71,11 @@ export const taskSchedulingOptions: Options[] = [
   },
   {
     value: SearchTypes.BREADTH,
-    label: 'Busca em Largura (BFS)',
+    label: 'Amplitude (BFS)',
   },
   {
     value: SearchTypes.DEPTH,
-    label: 'Busca em Profundidade (DFS)',
+    label: 'Profundidade (DFS)',
   },
   {
     value: SearchTypes.DEPTH_LIMITED,

@@ -2,9 +2,9 @@ import logging
 from typing import Any, Dict
 from service.base.UninformedSearch import UninformedSearch
 from service.base.InformedSearch import InformedSearch
-from service.implementation.TaskSchedulingSearch import TaskSchedulingSearch
-from service.implementation.TaskSchedulingData import SetupMatrix
-from service.implementation.TaskFamily import TaskFamily
+from service.scheduling.TaskSchedulingSearch import TaskSchedulingSearch
+from service.scheduling.TaskSchedulingData import SetupMatrix
+from service.scheduling.TaskFamily import TaskFamily
 from flask_cors import CORS # type: ignore
 from flask import Flask, request, jsonify, abort # type: ignore
 

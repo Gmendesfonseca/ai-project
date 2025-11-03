@@ -388,6 +388,25 @@ npm run preview
 
 ---
 
+## 🧪 Testes e Validação
+
+O projeto inclui documentação completa de testes de mesa e scripts automatizados:
+
+- **[TESTES_DE_MESA.md](docs/TESTES_DE_MESA.md)**: Documentação detalhada com exemplos passo a passo de execução de cada algoritmo
+- **[COMO_EXECUTAR_TESTES.md](docs/COMO_EXECUTAR_TESTES.md)**: Guia prático para executar e validar os algoritmos
+- **test_algorithms.py**: Script Python automatizado para executar todos os testes
+
+### Executar Suite de Testes
+
+```bash
+cd backend
+python test_algorithms.py
+```
+
+Este script executa automaticamente todos os 18 algoritmos (9 para grafos + 9 para sequenciamento) e gera relatório comparativo.
+
+---
+
 ## 📚 Dependências Principais
 
 ### Backend

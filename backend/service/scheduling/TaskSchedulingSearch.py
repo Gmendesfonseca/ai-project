@@ -7,6 +7,7 @@ from typing import List, Tuple, Optional
 from collections import deque
 import logging
 
+
 class TaskSchedulingSearch(InformedSearch):
     def __init__(self):
         super().__init__()
@@ -173,7 +174,6 @@ class TaskSchedulingSearch(InformedSearch):
         :param setup_matrix: Matriz de configuração
         :return: (sequencia_otima, custo_total) ou ([], inf) se não encontrar solução
         """
-        from collections import deque
         
         # Inicialização dos estados e filas
         queues, visited = self._initialize_bidirectional_search(tasks)
@@ -492,24 +492,29 @@ class TaskSchedulingSearch(InformedSearch):
         :param tasks: Lista de tarefas [1, 2, 3, ...]
         :return: (filas, visitados)
         """
-        from collections import deque
         
         # Estado inicial: todas as tarefas restantes
         start_node, initial_bitmask = self._get_initial_state(tasks)
 
-        # Estado final: nenhuma tarefa restante
+        # Estados finais: nenhuma tarefa restante, mas com diferentes últimas tarefas
+        # Precisamos iniciar backward de TODOS os possíveis estados finais
         final_bitmask = 0
-        goal_node = TaskSchedulingNode(final_bitmask, 0, 0.0, 0.0)
         
         queues = {
             'forward': deque([start_node]),
-            'backward': deque([goal_node])
+            'backward': deque()
         }
         
         visited = {
             'forward': {(initial_bitmask, 0): start_node},
-            'backward': {(final_bitmask, 0): goal_node}
+            'backward': {}
         }
+        
+        # Adiciona todos os estados finais possíveis (cada tarefa pode ser a última)
+        for task in tasks:
+            goal_node = TaskSchedulingNode(final_bitmask, task, 0.0, 0.0)
+            queues['backward'].append(goal_node)
+            visited['backward'][(final_bitmask, task)] = goal_node
         
         return queues, visited
 
@@ -581,26 +586,40 @@ class TaskSchedulingSearch(InformedSearch):
 
     def _generate_successors_reverse(self, current: TaskSchedulingNode, setup_matrix: SetupMatrix, tasks: List[int]) -> List[TaskSchedulingNode]:
         """
-        Gera sucessores para busca reversa (adiciona tarefas em vez de remover)
+        Gera predecessores para busca reversa (adiciona tarefas que ainda faltam)
         
-        :param current: Nó atual
+        Na busca reversa, partimos do estado final (bitmask=0) e vamos
+        adicionando tarefas de volta até chegar ao estado inicial (bitmask=all).
+        
+        :param current: Nó atual (na direção reversa)
         :param setup_matrix: Matriz de custos de setup
         :param tasks: Lista de todas as tarefas possíveis
-        :return: Lista de nós sucessores
+        :return: Lista de predecessores (sucessores na direção reversa)
         """
         successors = []
         
         for i in range(len(tasks)):
-            if not (current.remaining_bitmask & (1 << i)):  # Se tarefa i não está no bitmask
+            # Se a tarefa i NÃO está no bitmask atual, significa que ela
+            # poderia ter sido executada antes (predecessor)
+            if not (current.remaining_bitmask & (1 << i)):
                 task_id = tasks[i]
                 
-                # Adiciona tarefa ao bitmask
+                # Adiciona tarefa ao bitmask (reconstruindo estado anterior)
                 new_remaining = current.remaining_bitmask | (1 << i)
                 
-                # Calcula custo de setup reverso
-                setup_cost = setup_matrix.get_setup_cost(task_id, current.last_task)
+                # No sentido reverso:
+                # Estado atual tem last_task X
+                # Estado anterior tinha last_task = task_id
+                # A transição foi: task_id → X
+                # Custo: setup_matrix[task_id][X]
+                if current.last_task != 0:  # Se não é estado inicial fictício
+                    setup_cost = setup_matrix.get_setup_cost(task_id, current.last_task)
+                else:
+                    setup_cost = 0.0
+                
                 new_g_cost = current.v2 + setup_cost
                 
+                # Cria nó predecessor (com task_id como last_task)
                 new_node = TaskSchedulingNode(new_remaining, task_id, new_g_cost, 0.0, current)
                 new_node.v1 = new_g_cost
                 
@@ -608,12 +627,13 @@ class TaskSchedulingSearch(InformedSearch):
         
         return successors
     
-    def _reconstruct_bidirectional_path(self, forward_node: TaskSchedulingNode, backward_node: TaskSchedulingNode) -> List[int]:
+    def _reconstruct_bidirectional_path(self, forward_node: TaskSchedulingNode, backward_node: TaskSchedulingNode, tasks: List[int]) -> List[int]:
         """
         Reconstrói caminho de busca bidirecional
         
         :param forward_node: Nó do lado forward no ponto de encontro
         :param backward_node: Nó do lado backward no ponto de encontro
+        :param tasks: Lista de tarefas (não usado, mas mantido para compatibilidade)
         :return: Sequência completa de tarefas
         """
         # Caminho do início até o ponto de encontro

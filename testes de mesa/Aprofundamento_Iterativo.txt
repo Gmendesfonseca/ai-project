@@ -1,0 +1,364 @@
+═══════════════════════════════════════════════════════════════════════════════
+          TESTE DE MESA - APROFUNDAMENTO ITERATIVO (ITERATIVE DEEPENING)
+═══════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          PROBLEMA BASE                                    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Matriz de Setup (Custos de Transição):
+┌─────┬─────┬─────┬─────┬─────┐
+│  T  │  1  │  2  │  3  │  4  │
+├─────┼─────┼─────┼─────┼─────┤
+│  0  │ 10  │ 15  │  8  │ 12  │
+│  1  │  -  │  5  │ 12  │  8  │
+│  2  │  7  │  -  │  4  │ 10  │
+│  3  │ 12  │  6  │  -  │  5  │
+│  4  │  9  │ 10  │  7  │  -  │
+└─────┴─────┴─────┴─────┴─────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         ITERAÇÃO 1: LIMITE = 0                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIGURAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Limite Atual: L = 0
+Estado Inicial: (1111, 0, prof=0)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXECUÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó: (1111, 0, prof=0)
+Verificação: Bitmask = 1111 (ainda há tarefas)
+            prof=0 = L=0 → Atingiu limite!
+            ✗ NÃO pode expandir
+            ✗ NÃO é solução
+
+Nós Explorados: 1
+Resultado: ❌ SEM SOLUÇÃO com L=0
+
+Árvore (L=0):
+    (1111,0)
+    prof=0 ⛔ PAROU
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         ITERAÇÃO 2: LIMITE = 1                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIGURAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Limite Atual: L = 1
+Estado Inicial: (1111, 0, prof=0)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 1: Expandir Estado Inicial
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó: (1111, 0, prof=0)
+Verificação: prof=0 < L=1 ✓ Pode expandir
+
+Sucessores Gerados (prof=1):
+  1. (1110, 1) [1] → Bitmask=1110 (ainda restam 2,3,4)
+  2. (1101, 2) [2] → Bitmask=1101 (ainda restam 1,3,4)
+  3. (1011, 3) [3] → Bitmask=1011 (ainda restam 1,2,4)
+  4. (0111, 4) [4] → Bitmask=0111 (ainda restam 1,2,3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 2-5: Verificar Cada Sucessor
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó 1: (1110, 1, prof=1)
+  Verificação: prof=1 = L=1 ⛔ Atingiu limite!
+              Bitmask=1110 ✗ Não é solução
+              
+Nó 2: (1101, 2, prof=1)
+  Verificação: prof=1 = L=1 ⛔ Atingiu limite!
+              Bitmask=1101 ✗ Não é solução
+
+Nó 3: (1011, 3, prof=1)
+  Verificação: prof=1 = L=1 ⛔ Atingiu limite!
+              Bitmask=1011 ✗ Não é solução
+
+Nó 4: (0111, 4, prof=1)
+  Verificação: prof=1 = L=1 ⛔ Atingiu limite!
+              Bitmask=0111 ✗ Não é solução
+
+Nós Explorados: 1 + 4 = 5
+Resultado: ❌ SEM SOLUÇÃO com L=1
+
+Árvore (L=1):
+            (1111,0,0)
+          /   |   \   \
+     prof=1   |    |   |
+      [1]    [2]  [3] [4]
+    (1110,1)(1101,2)(1011,3)(0111,4)
+       ⛔    ⛔     ⛔     ⛔
+    Todos atingiram limite L=1
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         ITERAÇÃO 3: LIMITE = 2                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIGURAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Limite Atual: L = 2
+Estado Inicial: (1111, 0, prof=0)
+
+⚠️ Nota: Vou resumir porque há muitos caminhos de prof=2
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXECUÇÃO RESUMIDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Expansão prof=0 → prof=1: 4 nós ([1], [2], [3], [4])
+Expansão prof=1 → prof=2: 4×3 = 12 nós (pares de tarefas)
+
+Exemplos de Caminhos prof=2:
+  [1,2] → (0100, 2, prof=2) ⛔ Limite! Bitmask≠0000
+  [1,3] → (0110, 3, prof=2) ⛔ Limite! Bitmask≠0000
+  [1,4] → (0110, 4, prof=2) ⛔ Limite! Bitmask≠0000
+  [2,1] → (0100, 1, prof=2) ⛔ Limite! Bitmask≠0000
+  [2,3] → (0001, 3, prof=2) ⛔ Limite! Bitmask≠0000
+  ... (total 12 caminhos)
+
+Todos os 12 caminhos atingem prof=2 sem solução!
+
+Nós Explorados: 1 + 4 + 12 = 17
+Resultado: ❌ SEM SOLUÇÃO com L=2
+
+Árvore (L=2) - Parcial:
+                (1111,0,0)
+              /     |     \     \
+          [1]      [2]    [3]   [4]
+         /  |  \
+    [1,2][1,3][1,4] ... (12 caminhos no total)
+      ⛔   ⛔   ⛔
+    Todos param em prof=2
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         ITERAÇÃO 4: LIMITE = 3                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIGURAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Limite Atual: L = 3
+Estado Inicial: (1111, 0, prof=0)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXECUÇÃO RESUMIDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Expansão prof=0 → prof=1: 4 nós
+Expansão prof=1 → prof=2: 12 nós (pares)
+Expansão prof=2 → prof=3: 12×2 = 24 nós (trios)
+
+Exemplos de Caminhos prof=3:
+  [1,2,3] → (0000, 3, prof=3) ⚠️ Bitmask=0000 mas last≠última tarefa
+  [1,2,4] → (0000, 4, prof=3) ⚠️ Bitmask=0000 mas last≠última tarefa
+  [1,3,2] → (0100, 2, prof=3) ⛔ Ainda tem tarefa 4
+  [1,3,4] → (0100, 4, prof=3) ⛔ Ainda tem tarefa 2
+  ... (24 caminhos no total)
+
+IMPORTANTE: Alguns têm bitmask=0000 mas não são soluções válidas
+            porque a representação exige ALL tasks executadas
+
+Nós Explorados: 1 + 4 + 12 + 24 = 41
+Resultado: ❌ SEM SOLUÇÃO com L=3
+
+Observação Importante:
+  Em alguns problemas, estados com prof=3 e bitmask=0000 
+  podem parecer soluções, mas precisam verificar se 
+  todas as tarefas foram realmente executadas.
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    ITERAÇÃO 5: LIMITE = 4 - SUCESSO! 🎯                   ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFIGURAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Limite Atual: L = 4
+Estado Inicial: (1111, 0, prof=0)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXECUÇÃO (Primeiro Caminho com Solução)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Passo 1: Expandir Raiz
+  Nó: (1111, 0, prof=0)
+  prof=0 < L=4 ✓ Pode expandir
+  
+  Sucessores (prof=1):
+    [(1110,1), (1101,2), (1011,3), (0111,4)]
+
+Passo 2: Expandir [1]
+  Nó: (1110, 1, prof=1, g=10)
+  prof=1 < L=4 ✓ Pode expandir
+  
+  Sucessores (prof=2):
+    [(0100,2), (0110,3), (0110,4)]
+  
+  DLS escolhe: (0100, 2) [1,2]
+
+Passo 3: Expandir [1,2]
+  Nó: (0100, 2, prof=2, g=15)
+  prof=2 < L=4 ✓ Pode expandir
+  
+  Sucessores (prof=3):
+    [(0000,3), (0000,4)]
+  
+  DLS escolhe: (0000, 3) [1,2,3]
+
+Passo 4: Expandir [1,2,3]
+  Nó: (0000, 3, prof=3, g=19)
+  Bitmask: 0000 (mas last=3, não é última tarefa ainda)
+  prof=3 < L=4 ✓ Pode expandir
+  
+  Sucessor (prof=4):
+    (0000, 4, g=19+5=24)
+  
+  DLS escolhe: (0000, 4) [1,2,3,4]
+
+Passo 5: Verificar [1,2,3,4]
+  Nó: (0000, 4, prof=4, g=24)
+  Bitmask: 0000 ✓
+  Todas as tarefas executadas ✓
+  prof=4 ≤ L=4 ✓
+  
+  🎯 SOLUÇÃO ENCONTRADA!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sequência Encontrada: [1, 2, 3, 4]
+Custo Total: 24
+Profundidade: 4
+
+Detalhamento do Caminho:
+  ┌─────┬──────┬──────┬──────────┬────────────┐
+  │ Passo│ De   │ Para │ Custo    │ Acumulado  │
+  ├─────┼──────┼──────┼──────────┼────────────┤
+  │  1  │  0   │  1   │   10     │     10     │
+  │  2  │  1   │  2   │    5     │     15     │
+  │  3  │  2   │  3   │    4     │     19     │
+  │  4  │  3   │  4   │    5     │     24     │
+  └─────┴──────┴──────┴──────────┴────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    TABELA COMPLETA DE ITERAÇÕES                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────┬──────────┬────────────────┬──────────────┬────────────────────┐
+│Iteração │ Limite L │ Nós Explorados │   Resultado  │    Observação      │
+├─────────┼──────────┼────────────────┼──────────────┼────────────────────┤
+│    1    │    0     │       1        │    FALHA     │ Apenas raiz        │
+├─────────┼──────────┼────────────────┼──────────────┼────────────────────┤
+│    2    │    1     │       5        │    FALHA     │ Tarefas indiv.     │
+│         │          │   (1+4)        │              │                    │
+├─────────┼──────────┼────────────────┼──────────────┼────────────────────┤
+│    3    │    2     │      17        │    FALHA     │ Pares de tarefas   │
+│         │          │  (1+4+12)      │              │                    │
+├─────────┼──────────┼────────────────┼──────────────┼────────────────────┤
+│    4    │    3     │      41        │    FALHA     │ Trios de tarefas   │
+│         │          │ (1+4+12+24)    │              │                    │
+├─────────┼──────────┼────────────────┼──────────────┼────────────────────┤
+│    5    │    4     │    ~5-10*      │  SUCESSO ✓   │ Sequência completa │
+│         │          │                │ [1,2,3,4]    │ Custo: 24          │
+│         │          │                │              │ Encontrou cedo!    │
+└─────────┴──────────┴────────────────┴──────────────┴────────────────────┘
+
+* Na iteração 5, para quando encontra a primeira solução
+  (não precisa explorar todos os nós de profundidade 4)
+
+Total de Nós Explorados: 1 + 5 + 17 + 41 + ~8 ≈ 72 nós
+
+Observação Importante:
+  • Parece ineficiente (explora nós múltiplas vezes)
+  • MAS: Nós em profundidades rasas são poucos
+  • Custo dominado pelos nós na profundidade final
+  • Complexidade assintótica similar a BFS!
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         SOLUÇÃO ENCONTRADA                                ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Sequência: [1, 2, 3, 4]
+
+Custo: 24
+Profundidade: 4
+Iterações Necessárias: 5 (L=0,1,2,3,4)
+
+JSON:
+{
+  "sequence": [1, 2, 3, 4],
+  "total_cost": 24,
+  "depth": 4,
+  "iterations": 5,
+  "limits_tried": [0, 1, 2, 3, 4],
+  "total_nodes_explored": 72,
+  "optimal": false,
+  "path_details": [
+    {"from": 0, "to": 1, "cost": 10, "cumulative": 10},
+    {"from": 1, "to": 2, "cost": 5,  "cumulative": 15},
+    {"from": 2, "to": 3, "cost": 4,  "cumulative": 19},
+    {"from": 3, "to": 4, "cost": 5,  "cumulative": 24}
+  ]
+}
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║           VISUALIZAÇÃO: PROGRESSÃO DAS ITERAÇÕES                          ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+ITERAÇÃO 1 (L=0):
+    (1111,0) ⛔
+
+ITERAÇÃO 2 (L=1):
+        (1111,0)
+       /  |  \  \
+     [1] [2][3][4]
+      ⛔  ⛔ ⛔ ⛔
+
+ITERAÇÃO 3 (L=2):
+            (1111,0)
+          /   |   \   \
+        [1]  [2] [3] [4]
+       / | \
+   [1,2][1,3][1,4] ... (12 nós)
+     ⛔  ⛔   ⛔
+
+ITERAÇÃO 4 (L=3):
+            (1111,0)
+          /   |   \   \
+        [1]  [2] [3] [4]
+       / | \
+   [1,2][1,3][1,4]
+    / \
+[1,2,3][1,2,4] ... (24 nós no nível 3)
+  ⛔    ⛔
+
+ITERAÇÃO 5 (L=4) - SUCESSO:
+            (1111,0)
+               |
+             [1]
+               |
+            [1,2]
+               |
+           [1,2,3]
+               |
+          [1,2,3,4] 🎯 SOLUÇÃO!
+
+Nota: A cada iteração, reconstrói a árvore até o novo limite!

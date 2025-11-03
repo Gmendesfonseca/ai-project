@@ -10,3 +10,6 @@ Passo 8: Rodar o bash script `run.sh`com o comando: `bash run.sh`
 Passo Opcional: 
 - Acessar o navegador e abrir a URL: `http://127.0.0.1:5000`
 - Com a mensagem 'Health Check: The server is running!' sendo exibida, significa que a aplicação está rodando corretamente.
+
+Observação:
+O arquivo usado para os testes de mesa de sequenciamento de tarefas é o 'example/scheduling/tasks_small.txt'.

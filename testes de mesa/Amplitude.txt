@@ -1,0 +1,305 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    TESTE DE MESA - BUSCA EM AMPLITUDE
+═══════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          PROBLEMA BASE                                    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Matriz de Setup (Custos de Transição):
+┌─────┬─────┬─────┬─────┬─────┐
+│  T  │  1  │  2  │  3  │  4  │
+├─────┼─────┼─────┼─────┼─────┤
+│  0  │ 10  │ 15  │  8  │ 12  │
+│  1  │  -  │  5  │ 12  │  8  │
+│  2  │  7  │  -  │  4  │ 10  │
+│  3  │ 12  │  6  │  -  │  5  │
+│  4  │  9  │ 10  │  7  │  -  │
+└─────┴─────┴─────┴─────┴─────┘
+
+Tarefas: {1, 2, 3, 4}
+Estado Inicial: Nenhuma tarefa executada
+Estado Objetivo: Todas as tarefas executadas
+Representação: Bitmask (1111 = todas disponíveis, 0000 = todas executadas)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         EXECUÇÃO                                          ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INICIALIZAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Estado Inicial:
+  - Bitmask: 1111 (binário) = 15 (decimal) = todas as 4 tarefas disponíveis
+  - Última tarefa: 0 (estado fictício inicial)
+  - Custo acumulado: 0
+  - Fila: [(bitmask=1111, last=0, cost=0)]
+
+Estrutura da Fila: [INÍCIO ← ... ← FIM]
+Operações: 
+  - Remover (pop): do INÍCIO
+  - Adicionar (append): no FIM
+
+Passo 1: Expandir Estado Inicial
+
+Nó atual: (1111, 0, 0)
+
+Tarefas disponíveis: {1, 2, 3, 4}
+
+Para cada tarefa i em {1,2,3,4}:
+
+  - Calcular novo_bitmask = remover bit da tarefa i
+
+  - Calcular setup_cost = matriz[0][i]
+
+  - Criar sucessor: (novo_bitmask, i, cost + setup_cost)
+
+Sucessores gerados:
+
+  1. Escolher tarefa 1: (1110, 1, 0+10=10)
+
+     - Bitmask 1110 = tarefas {2,3,4} restantes
+
+  2. Escolher tarefa 2: (1101, 2, 0+15=15)
+
+     - Bitmask 1101 = tarefas {1,3,4} restantes
+
+  3. Escolher tarefa 3: (1011, 3, 0+8=8)
+
+     - Bitmask 1011 = tarefas {1,2,4} restantes
+
+  4. Escolher tarefa 4: (0111, 4, 0+12=12)
+
+     - Bitmask 0111 = tarefas {1,2,3} restantes
+
+Fila após expansão: [(1110,1,10), (1101,2,15), (1011,3,8), (0111,4,12)]
+
+Passo 2: Expandir (1110, 1, 10) - Sequência [1]
+
+Nó atual: (1110, 1, 10)
+
+Última tarefa: 1
+
+Tarefas restantes: {2, 3, 4} (bitmask 1110)
+
+Custo acumulado: 10
+
+Sucessores:
+
+  1. Tarefa 2: (1100, 2, 10+5=15)  [sequência: 1→2]
+
+     - Setup 1→2 = 5
+
+  2. Tarefa 3: (1010, 3, 10+12=22) [sequência: 1→3]
+
+     - Setup 1→3 = 12
+
+  3. Tarefa 4: (0110, 4, 10+8=18)  [sequência: 1→4]
+
+     - Setup 1→4 = 8
+
+Fila: [(1101,2,15), (1011,3,8), (0111,4,12), (1100,2,15), (1010,3,22), (0110,4,18)]
+
+Passo 3: Expandir (1101, 2, 15) - Sequência [2]
+
+Nó atual: (1101, 2, 15)
+
+Última tarefa: 2
+
+Tarefas restantes: {1, 3, 4}
+
+Custo acumulado: 15
+
+Sucessores:
+
+  1. Tarefa 1: (1001, 1, 15+7=22)  [sequência: 2→1]
+
+  2. Tarefa 3: (0101, 3, 15+4=19)  [sequência: 2→3]
+
+  3. Tarefa 4: (0011, 4, 15+10=25) [sequência: 2→4]
+
+Passo 4: Expandir (1011, 3, 8) - Sequência [3] ⭐ Melhor até agora!
+
+Nó atual: (1011, 3, 8)
+
+Última tarefa: 3
+
+Tarefas restantes: {1, 2, 4}
+
+Custo acumulado: 8
+
+Sucessores:
+
+  1. Tarefa 1: (1010, 1, 8+12=20) [sequência: 3→1]
+
+  2. Tarefa 2: (1001, 2, 8+6=14)  [sequência: 3→2] ⭐
+
+  3. Tarefa 4: (0011, 4, 8+5=13)  [sequência: 3→4]
+
+Passo 5-10: Continua expandindo em largura...
+
+Passo 11: Expandir (1001, 2, 14) - Sequência [3,2]
+
+Nó atual: (1001, 2, 14)
+
+Sequência até aqui: [3, 2]
+
+Tarefas restantes: {1, 4}
+
+Custo acumulado: 14
+
+Sucessores:
+
+  1. Tarefa 1: (1000, 1, 14+7=21)  [sequência: 3→2→1]
+
+  2. Tarefa 4: (0001, 4, 14+10=24) [sequência: 3→2→4]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 5: Expandir (0111, 4, 12) - Sequência [4]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó Expandido: (0111, 4, 12)
+Tarefas Restantes: {1, 2, 3} (bitmask 0111 = 0111₂)
+Custo Acumulado: 12
+
+Gerar Sucessores:
+  Tarefa 1: novo_bitmask = 0111 & ~(1<<0) = 0110
+            custo = 12 + matriz[4][1] = 12 + 9 = 21
+            Sucessor: (0110, 1, 21) [sequência: 4→1]
+  
+  Tarefa 2: novo_bitmask = 0111 & ~(1<<1) = 0101
+            custo = 12 + matriz[4][2] = 12 + 10 = 22
+            Sucessor: (0101, 2, 22) [sequência: 4→2]
+  
+  Tarefa 3: novo_bitmask = 0111 & ~(1<<2) = 0011
+            custo = 12 + matriz[4][3] = 12 + 7 = 19
+            Sucessor: (0011, 3, 19) [sequência: 4→3]
+
+Fila Após Adição:
+  [(1011,3,8), (1100,2,15), (1010,3,22), (0110,4,18), (1001,1,22), 
+   (0101,3,19), (0011,4,25), (1010,1,20), (1001,2,14), (0011,4,13),
+   (0110,1,21), (0101,2,22), (0011,3,19)]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 6-14: Continuação da Expansão em Largura...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Expansões intermediárias continuam seguindo o padrão FIFO]
+[A cada passo, expande-se o primeiro nó da fila]
+[Sucessores são adicionados ao final da fila]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 15: Expandir (0011, 4, 13) - Sequência [3,4] ⭐ Caminho Promissor!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó Expandido: (0011, 4, 13)
+Tarefas Restantes: {1, 2} (bitmask 0011 = 0011₂)
+Custo Acumulado: 13
+
+Gerar Sucessores:
+  Tarefa 1: novo_bitmask = 0011 & ~(1<<0) = 0010
+            custo = 13 + matriz[4][1] = 13 + 9 = 22
+            Sucessor: (0010, 1, 22) [sequência: 3→4→1]
+  
+  Tarefa 2: novo_bitmask = 0011 & ~(1<<1) = 0001
+            custo = 13 + matriz[4][2] = 13 + 10 = 23
+            Sucessor: (0001, 2, 23) [sequência: 3→4→2]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 20: Expandir (1001, 2, 14) - Sequência [3,2] ⭐⭐ Melhor Custo!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó Expandido: (1001, 2, 14)
+Sequência Até Aqui: [3, 2]
+Tarefas Restantes: {1, 4}
+Custo Acumulado: 14
+
+Gerar Sucessores:
+  Tarefa 1: novo_bitmask = 1001 & ~(1<<0) = 1000
+            custo = 14 + matriz[2][1] = 14 + 7 = 21
+            Sucessor: (1000, 1, 21) [sequência: 3→2→1]
+  
+  Tarefa 4: novo_bitmask = 1001 & ~(1<<3) = 0001
+            custo = 14 + matriz[2][4] = 14 + 10 = 24
+            Sucessor: (0001, 4, 24) [sequência: 3→2→4]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSO 35: Expandir (0001, 4, 24) - Sequência [3,2,4]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nó Expandido: (0001, 4, 24)
+Sequência: [3, 2, 4]
+Tarefas Restantes: {1} (apenas tarefa 1)
+Custo Acumulado: 24
+
+Gerar Sucessor Final:
+  Tarefa 1: novo_bitmask = 0001 & ~(1<<0) = 0000
+            custo = 24 + matriz[4][1] = 24 + 9 = 33
+            Sucessor: (0000, 1, 33) [sequência: 3→2→4→1]
+
+Verificação:
+  ✓ Bitmask = 0000 → Todas as tarefas executadas
+  ✓ ESTADO OBJETIVO ALCANÇADO!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                     TABELA DE EXECUÇÃO COMPLETA                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌──────┬───────────────────────┬──────────────┬───────────┬──────────────┬─────────────────┐
+│ Passo│ Fila (início→fim)     │ Nó Expandido │ Sequência │ Tarefas Rest.│ Ação            │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  1   │ [(1111,0,0)]          │      -       │    []     │  {1,2,3,4}   │ Inicialização   │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  2   │ [(1110,1,10),         │  (1111,0,0)  │    []     │  {1,2,3,4}   │ Gera 4 sucessor │
+│      │  (1101,2,15),         │              │           │              │                 │
+│      │  (1011,3,8),          │              │           │              │                 │
+│      │  (0111,4,12)]         │              │           │              │                 │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  3   │ [(1101,2,15),         │  (1110,1,10) │   [1]     │   {2,3,4}    │ Gera 3 sucessor │
+│      │  (1011,3,8),          │              │           │              │                 │
+│      │  (0111,4,12),         │              │           │              │                 │
+│      │  (1100,2,15),         │              │           │              │                 │
+│      │  (1010,3,22),         │              │           │              │                 │
+│      │  (0110,4,18)]         │              │           │              │                 │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  4   │ [(1011,3,8), ...]     │  (1101,2,15) │   [2]     │   {1,3,4}    │ Gera 3 sucessor │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  5   │ [... múltiplos nós]   │  (1011,3,8)  │   [3]     │   {1,2,4}    │ Melhor caminho! │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│ 6-34 │ [expansões contínuas] │   diversos   │  várias   │   diversas   │ Exploração BFS  │
+├──────┼───────────────────────┼──────────────┼───────────┼──────────────┼─────────────────┤
+│  35  │ [...(0000,1,33)]      │  (0001,4,24) │  [3,2,4]  │     {1}      │ ✓✓✓ SOLUÇÃO!    │
+└──────┴───────────────────────┴──────────────┴───────────┴──────────────┴─────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         SOLUÇÃO ENCONTRADA                                ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Sequência Ótima: [3, 2, 4, 1]
+
+Detalhamento do Caminho:
+  ┌──────┬──────┬──────┬──────────┬────────────┐
+  │ Passo │ De   │ Para │ Custo    │ Acumulado  │
+  ├──────┼──────┼──────┼──────────┼────────────┤
+  │  1   │  0   │  3   │    8     │     8      │
+  │  2   │  3   │  2   │    6     │    14      │
+  │  3   │  2   │  4   │   10     │    24      │
+  │  4   │  4   │  1   │    9     │    33      │
+  └──────┴──────┴──────┴──────────┴────────────┘
+
+Custo Total: 33
+
+JSON:
+{
+  "sequence": [3, 2, 4, 1],
+  "total_cost": 33,
+  "path_details": [
+    {"from": 0, "to": 3, "cost": 8,  "cumulative": 8},
+    {"from": 3, "to": 2, "cost": 6,  "cumulative": 14},
+    {"from": 2, "to": 4, "cost": 10, "cumulative": 24},
+    {"from": 4, "to": 1, "cost": 9,  "cumulative": 33}
+  ]
+}
